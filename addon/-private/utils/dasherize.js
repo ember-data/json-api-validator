@@ -1,5 +1,5 @@
 const CACHE = Object.create(null);
-const EXCESS_CAPS_REGEX = /([A-Z\/])([A-Z]+)?/g;
+const EXCESS_CAPS_REGEX = /([A-Z/])([A-Z]+)?/g;
 const DASH_CAPS_REGEX = /^[A-Z]$/;
 
 function replacer(_, $1, $2, index) {

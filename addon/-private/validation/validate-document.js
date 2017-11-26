@@ -6,23 +6,25 @@ import validateMeta from './validate-meta';
  *
  *  Spec: http://jsonapi.org/format/#document-top-level
  *
+ * @param validator
  * @param document
+ * @param {Array} errors
+ * @param {String} path
+ *
  * @returns {Array}
  */
-export default function validateDocument(document) {
-  let errors = [];
-
-  if (itExists(document, errors)) {
-    itHasAtLeastOne(document, errors);
-    itCantHaveBoth(document, errors);
-    itDoesntHaveMoreThan(document, errors);
-    includedMustHaveData(document, errors);
-    validateMeta(document, errors);
-    validateVersion(document, errors);
-    validateData(document, errors);
-    validateLinks(document, errors);
-    validateIncluded(document, errors);
-    validateErrors(document, errors);
+export default function _validateDocument(validator, document, errors = [], path = '') {
+  if (itExists(validator, document, errors, path)) {
+    itHasAtLeastOne(validator, document, errors, path);
+    itCantHaveBoth(validator, document, errors, path);
+    itDoesntHaveMoreThan(validator, document, errors, path);
+    includedMustHaveData(validator, document, errors, path);
+    validateMeta(validator, document, errors, path);
+    validateVersion(validator, document, errors, path);
+    validateData(validator, document, errors, path);
+    validateLinks(validator, document, errors, path);
+    validateIncluded(validator, document, errors, path);
+    validateErrors(validator, document, errors, path);
   }
 
   return errors;
@@ -31,10 +33,12 @@ export default function validateDocument(document) {
 /**
  * Validates that a document is an object
  *
+ * @param validator
  * @param document
  * @param errors
+ * @param path
  */
-function itExists(document, errors) {
+function itExists(validator, document, errors, path) {
   let type = typeof document;
 
   if (type !== 'object' || document === null) {
@@ -54,10 +58,12 @@ const AT_LEAST_ONE = [
  * Validates that a document has at least one of
  * the following keys: `data`, `meta`, and `errors`.
  *
+ * @param validator
  * @param document
  * @param errors
+ * @param path
  */
-function itHasAtLeastOne(document, errors) {
+function itHasAtLeastOne(validator, document, errors, path) {
   for (let i = 0; i < AT_LEAST_ONE.length; i++) {
     let neededKey = AT_LEAST_ONE[i];
 
@@ -74,10 +80,12 @@ function itHasAtLeastOne(document, errors) {
 /**
  * Validates that a document does not have both data and errors
  *
+ * @param validator
  * @param document
  * @param errors
+ * @param path
  */
-function itCantHaveBoth(document, errors) {
+function itCantHaveBoth(validator, document, errors, path) {
   if (document.hasOwnProperty('data') && document.hasOwnProperty('errors')) {
     errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.DISALLOWED_DATA_KEY, 'data', document));
     return false;
@@ -93,11 +101,13 @@ const OPTIONAL_KEYS = [
 ];
 /**
  *
+ * @param validator
  * @param document
  * @param errors
+ * @param path
  * @returns {boolean}
  */
-function itDoesntHaveMoreThan(document, errors) {
+function itDoesntHaveMoreThan(validator, document, errors, path) {
   let hasError = false;
 
   Object.keys(document).forEach(key => {
@@ -113,11 +123,13 @@ function itDoesntHaveMoreThan(document, errors) {
 /**
  * Spec: http://jsonapi.org/format/#document-top-level
  *
+ * @param validator
  * @param document
  * @param errors
+ * @param path
  * @returns {boolean}
  */
-function includedMustHaveData(document, errors) {
+function includedMustHaveData(validator, document, errors, path) {
   if (document.hasOwnProperty('included') && !document.hasOwnProperty('data')) {
     errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.DISALLOWED_INCLUDED_KEY, 'included', document));
     return false;
@@ -127,19 +139,21 @@ function includedMustHaveData(document, errors) {
 
 /**
  *
- * @param jsonApiDocument
+ * @param validator
+ * @param document
  * @param errors
+ * @param path
  * @returns {boolean}
  */
-function validateVersion(jsonApiDocument, errors) {
+function validateVersion(validator, document, errors, path) {
   let hasError = false;
 
-  if (hasKey(jsonApiDocument, 'jsonapi')) {
-    if (typeof jsonApiDocument.jsonapi !== 'object' || jsonApiDocument.jsonapi === null) {
-      errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.VALUE_MUST_BE_OBJECT, 'jsonapi', jsonApiDocument));
+  if (hasKey(document, 'jsonapi')) {
+    if (typeof document.jsonapi !== 'object' || document.jsonapi === null) {
+      errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.VALUE_MUST_BE_OBJECT, 'jsonapi', document));
 
     } else {
-      let keys = Object.keys(jsonApiDocument.jsonapi);
+      let keys = Object.keys(document.jsonapi);
 
       /*
         The spec allows this to be empty, but we are more strict. If the jsonapi
@@ -157,16 +171,16 @@ function validateVersion(jsonApiDocument, errors) {
           let key = keys[i];
 
           if (key === 'version') {
-            if (typeof jsonApiDocument.jsonapi.version !== 'string' || jsonApiDocument.jsonapi.version.length === 0) {
-              errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.VERSION_MUST_BE_STRING, 'version', jsonApiDocument.jsonapi, 'jsonapi'));
+            if (typeof document.jsonapi.version !== 'string' || document.jsonapi.version.length === 0) {
+              errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.VERSION_MUST_BE_STRING, 'version', document.jsonapi, 'jsonapi'));
               hasError = true;
             }
 
           } else if (key === 'meta') {
-            hasError = !validateMeta(jsonApiDocument.jsonapi, errors, 'jsonapi') || hasError;
+            hasError = !validateMeta(document.jsonapi, errors, 'jsonapi') || hasError;
 
           } else {
-            errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.UNKNOWN_KEY, key, jsonApiDocument.jsonapi, 'jsonapi'));
+            errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.UNKNOWN_KEY, key, document.jsonapi, 'jsonapi'));
             hasError = true;
           }
         }
@@ -199,11 +213,13 @@ function validateVersion(jsonApiDocument, errors) {
  *
  * For further reading on how we validate the structure of a resource see the `validateResource` method.
  *
+ * @param validator
  * @param document
  * @param errors
+ * @param path
  * @returns {boolean}
  */
-function validateData(document, errors) {
+function validateData(validator, document, errors, path) {
   return true;
 }
 
@@ -219,11 +235,13 @@ function validateData(document, errors) {
  * However, exceptions are made for for sparse fieldsets
  * which makes this difficult to enforce.
  *
+ * @param validator
  * @param document
  * @param errors
+ * @param path
  * @returns {boolean}
  */
-function validateIncluded(document, errors) {
+function validateIncluded(validator, document, errors, path) {
   if (hasKey(document, 'included')) {
     if (!Array.isArray(document.included)) {
       // TODO error
@@ -254,11 +272,13 @@ function validateIncluded(document, errors) {
  *
  *  See: http://jsonapi.org/format/#error-objects
  *
+ * @param validator
  * @param document
  * @param errors
+ * @param path
  * @returns {boolean}
  */
-function validateErrors(document, errors) {
+function validateErrors(validator, document, errors, path) {
   if (hasKey(document, 'errors')) {
     return !Array.isArray(document.errors);
   }
@@ -287,11 +307,13 @@ function validateErrors(document, errors) {
  *
  * Keys MUST either be omitted or have a `null` value to indicate that a particular link is unavailable.
  *
+ * @param validator
  * @param document
  * @param errors
+ * @param path
  * @returns {boolean}
  */
-function validateLinks(document, errors) {
+function validateLinks(validator, document, errors, path) {
   return true;
 }
 

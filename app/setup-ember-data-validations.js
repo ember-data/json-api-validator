@@ -60,9 +60,7 @@ export default function setupEmberDataValidations(_Store = Store) {
     },
 
     _push(jsonApiDocument) {
-      let validator = this.__validator;
-      let validationResponse = validator.validateDocument(jsonApiDocument);
-      validator.throw(validationResponse);
+      this.__validator.validateDocument(jsonApiDocument);
       return this._super(jsonApiDocument);
     }
   });

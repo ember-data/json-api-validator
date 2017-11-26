@@ -1,7 +1,5 @@
 import dasherize from './utils/dasherize';
-import validateResource from './validation/validate-resource';
-import validateDocument from './validation/validate-document';
-import validateReference from './validation/validate-reference';
+import _validateDocument from './validation/validate-document';
 import coalesceAndThrowErrors from './validation/coalesce-errors';
 
 function formatType(type) {
@@ -49,11 +47,17 @@ export default class JSONAPIValidator {
     this.formatType = hooks.formatType || formatType;
   }
 
-  throw(validationResponse) {
-    coalesceAndThrowErrors(validationResponse);
+  /**
+   * Validate that a json-api document conforms to spec
+   *
+   *  Spec: http://jsonapi.org/format/#document-top-level
+   *
+   * @param document
+   * @returns {Array}
+   */
+  validateDocument(document) {
+    let errors = _validateDocument(this, document);
+
+    coalesceAndThrowErrors(errors);
   }
 }
-
-JSONAPIValidator.prototype.validateDocument = validateDocument;
-JSONAPIValidator.prototype.validateResource = validateResource;
-JSONAPIValidator.prototype.validateReference = validateReference;

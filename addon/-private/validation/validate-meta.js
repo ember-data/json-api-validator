@@ -9,15 +9,16 @@ function isObject(obj) {
 }
 
 /**
- * @param jsonApiObject
+ * @param validator
+ * @param document
  * @param errors
  * @param path
  * @returns {boolean}
  */
-export default function validateObjectMeta(jsonApiObject, errors, path = '') {
-  if (hasKey(jsonApiObject, 'meta')) {
-    if (!isObject(jsonApiObject.meta)) {
-      errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.VALUE_MUST_BE_OBJECT, 'meta', jsonApiObject, path));
+export default function validateObjectMeta(validator, document, errors, path = '') {
+  if (hasKey(document, 'meta')) {
+    if (!isObject(document.meta)) {
+      errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.VALUE_MUST_BE_OBJECT, 'meta', document, path));
       return false;
     }
   }
