@@ -1,0 +1,59 @@
+import dasherize from './utils/dasherize';
+import validateResource from './validation/validate-resource';
+import validateDocument from './validation/validate-document';
+import validateReference from './validation/validate-reference';
+import coalesceAndThrowErrors from './validation/coalesce-errors';
+
+function formatType(type) {
+  return dasherize(type);
+}
+
+function isDasherized(type) {
+ let dasherized = dasherize(type);
+
+  return dasherized === type;
+}
+
+function assertTypeFormat(type, formatter, mode) {
+  let formattedType = formatter(type);
+  let errors = [];
+
+  if (type !== formattedType) {
+    errors.push('yes');
+  }
+
+  if (mode === 'dasherize') {
+    if (!isDasherized(type)) {
+      errors.push('dasherize');
+    }
+  } else if (mode === 'not-dasherized') {
+    if (isDasherized(type)) {
+      errors.push('whoops, dasherized');
+    }
+  }
+}
+
+export default class JSONAPIValidator {
+  constructor(hooks) {
+    this.schemaFor = hooks.schemaFor;
+    this.isSubclassOf = hooks.isSubclassOf;
+    this.formatFallbackType = hooks.formatFallbackType;
+
+    // each one of these hooks should be considered an Ember Data bug
+    //  since they are only necessary due to Ember Data bugs
+
+    /*
+      Ember Data  strictly requires singularized, dasherized types
+     */
+    this.assertTypeFormat = hooks.assertTypeFormat || assertTypeFormat;
+    this.formatType = hooks.formatType || formatType;
+  }
+
+  throw(validationResponse) {
+    coalesceAndThrowErrors(validationResponse);
+  }
+}
+
+JSONAPIValidator.prototype.validateDocument = validateDocument;
+JSONAPIValidator.prototype.validateResource = validateResource;
+JSONAPIValidator.prototype.validateReference = validateReference;
