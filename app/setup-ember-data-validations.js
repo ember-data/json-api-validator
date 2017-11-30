@@ -1,8 +1,7 @@
-import Ember from 'ember';
 import DS from 'ember-data';
 import Validator from 'json-api-validations/-private/validator';
+import { singularize, dasherize } from 'ember-inflector';
 
-const { singularize, dasherize } = Ember.String;
 const { Store } = DS;
 
 export default function setupEmberDataValidations(_Store = Store) {
@@ -12,6 +11,9 @@ export default function setupEmberDataValidations(_Store = Store) {
       let store = this;
 
       this.__validator = new Validator({
+        disallowOnlyMetaDocument() {
+          return 'ember-data does not enable json-api documents containing only `meta` as a member to be pushed to the store.';
+        },
         formatType(type) {
           return dasherize(type);
         },

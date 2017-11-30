@@ -31,6 +31,8 @@ function assertTypeFormat(type, formatter, mode) {
   }
 }
 
+function _disallowOnlyMetaDocument() { return false; }
+
 export default class JSONAPIValidator {
   constructor(hooks) {
     this.schemaFor = hooks.schemaFor;
@@ -43,6 +45,7 @@ export default class JSONAPIValidator {
     /*
       Ember Data  strictly requires singularized, dasherized types
      */
+    this.disallowOnlyMetaDocument = hooks.disallowOnlyMetaDocument || _disallowOnlyMetaDocument;
     this.assertTypeFormat = hooks.assertTypeFormat || assertTypeFormat;
     this.formatType = hooks.formatType || formatType;
   }

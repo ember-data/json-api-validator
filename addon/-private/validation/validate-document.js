@@ -16,15 +16,17 @@ import validateMeta from './validate-meta';
 export default function _validateDocument(validator, document, errors = [], path = '') {
   if (itExists(validator, document, errors, path)) {
     itHasAtLeastOne(validator, document, errors, path);
+    itHasAtLeastOneNonNull(validator, document, errors, path);
+    itHasDataOrErrorsWithMeta(validator, document, errors, path);
     itCantHaveBoth(validator, document, errors, path);
-    itDoesntHaveMoreThan(validator, document, errors, path);
-    includedMustHaveData(validator, document, errors, path);
-    validateMeta(validator, document, errors, path);
-    validateVersion(validator, document, errors, path);
-    validateData(validator, document, errors, path);
-    validateLinks(validator, document, errors, path);
-    validateIncluded(validator, document, errors, path);
-    validateErrors(validator, document, errors, path);
+    // itDoesntHaveMoreThan(validator, document, errors, path);
+    // includedMustHaveData(validator, document, errors, path);
+    // validateMeta(validator, document, errors, path);
+    // validateVersion(validator, document, errors, path);
+    // validateData(validator, document, errors, path);
+    // validateLinks(validator, document, errors, path);
+    // validateIncluded(validator, document, errors, path);
+    // validateErrors(validator, document, errors, path);
   }
 
   return errors;
@@ -41,8 +43,14 @@ export default function _validateDocument(validator, document, errors = [], path
 function itExists(validator, document, errors, path) {
   let type = typeof document;
 
-  if (type !== 'object' || document === null) {
-    errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.INVALID_DOCUMENT, undefined, document));
+  if (type !== 'object' || document === null || document instanceof Date) {
+    errors.push(new DocumentError({
+      document,
+      path,
+      code: DOCUMENT_ERROR_TYPES.INVALID_DOCUMENT,
+      validator,
+      value: type
+    }));
     return false;
   }
 
@@ -54,6 +62,7 @@ const AT_LEAST_ONE = [
   'meta',
   'errors'
 ];
+
 /**
  * Validates that a document has at least one of
  * the following keys: `data`, `meta`, and `errors`.
@@ -67,12 +76,96 @@ function itHasAtLeastOne(validator, document, errors, path) {
   for (let i = 0; i < AT_LEAST_ONE.length; i++) {
     let neededKey = AT_LEAST_ONE[i];
 
-    if (document.hasOwnProperty(neededKey)) {
+    if (document.hasOwnProperty(neededKey) && document[neededKey] !== undefined) {
       return true;
     }
   }
 
-  errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.MISSING_MANDATORY_KEY, AT_LEAST_ONE, document));
+  errors.push(new DocumentError({
+    document,
+    path,
+    code: DOCUMENT_ERROR_TYPES.MISSING_MANDATORY_MEMBER,
+    validator,
+    value: AT_LEAST_ONE
+  }));
+
+  return false;
+}
+
+function keyPresent(obj, key) {
+  return Object.prototype.hasOwnProperty.call(obj, key) && obj[key] !== undefined;
+}
+
+function keyPresentAndNotNull(obj, key) {
+  return keyPresent(obj, key) && obj[key] !== null;
+}
+
+/**
+ * Validates that a document has at least one of
+ * the following keys: `data`, `meta`, and `errors`
+ * and that the key is non-null
+ *
+ * @param validator
+ * @param document
+ * @param errors
+ * @param path
+ */
+function itHasAtLeastOneNonNull(validator, document, errors, path) {
+  let nullMembers = [];
+  for (let i = 0; i < AT_LEAST_ONE.length; i++) {
+    let neededKey = AT_LEAST_ONE[i];
+
+    if (keyPresentAndNotNull(document, neededKey)) {
+      return true;
+    } else if (keyPresent(document, neededKey)) {
+      nullMembers.push(neededKey);
+    }
+  }
+
+  if (nullMembers.length) {
+    errors.push(new DocumentError({
+      document,
+      path,
+      code: DOCUMENT_ERROR_TYPES.NULL_MANDATORY_MEMBER,
+      validator,
+      key: nullMembers,
+      value: AT_LEAST_ONE
+    }));
+  }
+
+  return false;
+}
+
+/**
+ * Validates that a document has data or errors in addition to meta
+ *
+ * @param validator
+ * @param document
+ * @param errors
+ * @param path
+ */
+function itHasDataOrErrorsWithMeta(validator, document, errors, path) {
+  let msg = validator.disallowOnlyMetaDocument();
+
+  if (msg === false) {
+    return true;
+  }
+
+  if (!document.hasOwnProperty('meta')) {
+    return true;
+  }
+
+  if (keyPresentAndNotNull(document, 'data') || keyPresentAndNotNull(document, 'errors')) {
+    return true;
+  }
+
+  errors.push(new DocumentError({
+    document,
+    path,
+    code: DOCUMENT_ERROR_TYPES.DISALLOWED_SOLITARY_META_MEMBER,
+    validator,
+    value: msg
+  }));
 
   return false;
 }
@@ -87,7 +180,14 @@ function itHasAtLeastOne(validator, document, errors, path) {
  */
 function itCantHaveBoth(validator, document, errors, path) {
   if (document.hasOwnProperty('data') && document.hasOwnProperty('errors')) {
-    errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.DISALLOWED_DATA_KEY, 'data', document));
+    errors.push(new DocumentError({
+      document,
+      path,
+      code: DOCUMENT_ERROR_TYPES.DISALLOWED_DATA_MEMBER,
+      validator,
+      value: ['data', 'errors']
+    }));
+
     return false;
   }
 
@@ -112,7 +212,7 @@ function itDoesntHaveMoreThan(validator, document, errors, path) {
 
   Object.keys(document).forEach(key => {
     if (OPTIONAL_KEYS.indexOf(key) === -1 && AT_LEAST_ONE.indexOf(key) === -1) {
-      errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.UNKNOWN_KEY, key, document));
+      errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.UNKNOWN_MEMBER, key, document));
       hasError = true;
     }
   });
@@ -131,7 +231,7 @@ function itDoesntHaveMoreThan(validator, document, errors, path) {
  */
 function includedMustHaveData(validator, document, errors, path) {
   if (document.hasOwnProperty('included') && !document.hasOwnProperty('data')) {
-    errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.DISALLOWED_INCLUDED_KEY, 'included', document));
+    errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.DISALLOWED_INCLUDED_MEMBER, 'included', document));
     return false;
   }
   return true;
@@ -180,7 +280,7 @@ function validateVersion(validator, document, errors, path) {
             hasError = !validateMeta(document.jsonapi, errors, 'jsonapi') || hasError;
 
           } else {
-            errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.UNKNOWN_KEY, key, document.jsonapi, 'jsonapi'));
+            errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.UNKNOWN_MEMBER, key, document.jsonapi, 'jsonapi'));
             hasError = true;
           }
         }
