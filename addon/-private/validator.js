@@ -35,8 +35,9 @@ function _disallowOnlyMetaDocument() { return false; }
 
 export default class JSONAPIValidator {
   constructor(hooks) {
+    this.strictMode = !!hooks.strictMode || true;
     this.schemaFor = hooks.schemaFor;
-    this.isSubclassOf = hooks.isSubclassOf;
+    this.schemaImplements = hooks.schemaImplements;
     this.formatFallbackType = hooks.formatFallbackType;
 
     // each one of these hooks should be considered an Ember Data bug
@@ -59,8 +60,8 @@ export default class JSONAPIValidator {
    * @returns {Array}
    */
   validateDocument(document) {
-    let errors = _validateDocument(this, document);
+    let issues = _validateDocument(this, document);
 
-    coalesceAndThrowErrors(errors);
+    coalesceAndThrowErrors(issues);
   }
 }

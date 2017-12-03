@@ -1,3 +1,4 @@
+/* global console*/
 import resolver from './helpers/resolver';
 import {
   setResolver
@@ -15,6 +16,7 @@ QUnit.assert.throwsWith = function throwsWith(testFn, message, label) {
       message: `${label}\n\nExpected Error:\t${message}\n\nActual Error:\t<<no error was thrown!>>`
     });
   } catch (e) {
+    /* eslint-disable no-console*/
     console.log(e);
     if (e.message.indexOf(message) !== -1) {
       this.pushResult({

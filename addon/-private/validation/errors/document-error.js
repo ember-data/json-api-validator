@@ -73,6 +73,11 @@ function buildDocumentErrorMessage(options) {
     case DOCUMENT_ERROR_TYPES.DISALLOWED_DATA_MEMBER:
       return 'A json-api document MUST NOT contain both `data` and `errors` as a members.';
 
+    case DOCUMENT_ERROR_TYPES.DISALLOWED_INCLUDED_MEMBER:
+      return 'A json-api document MUST NOT contain `included` as a member unless `data` is also present.';
+
+    case DOCUMENT_ERROR_TYPES.UNKNOWN_MEMBER:
+      return `'${value}' is not a valid member of a json-api document.`;
   }
 
   return 'DocumentError';

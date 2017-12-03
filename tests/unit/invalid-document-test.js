@@ -9,7 +9,11 @@ import FlyingDogModel from 'dummy/models/flying-dog';
 import setupEmberDataValidations from 'dummy/setup-ember-data-validations';
 import Ember from 'ember';
 
-const { run } = Ember;
+const { copy, run } = Ember;
+
+function buildDoc(base, extended) {
+  return Object.assign({}, copy(base, true), copy(extended, true));
+}
 
 setupEmberDataValidations(DS.Store);
 
@@ -38,9 +42,16 @@ module('Unit | Document', function(hooks) {
     let allowHook = () => { return false; };
 
     store.__validator.disallowOnlyMetaDocument = allowHook;
+    store.__validator.strictMode = false;
 
     this.disallowMetaOnlyDocuments = () => { store.__validator.disallowOnlyMetaDocument = disallowHook; };
     this.allowMetaOnlyDocuments = () => { store.__validator.disallowOnlyMetaDocument = allowHook; };
+    this.enableStrictMode = () => {
+      store.__validator.strictMode = true;
+    };
+    this.disableStrictMode = () => {
+      store.__validator.strictMode = false;
+    };
   });
 
   module('Members', function() {
@@ -87,16 +98,67 @@ module('Unit | Document', function(hooks) {
       assert.throwsWith(() => { push({ data: { type: 'animal', id: '1', attributes: {} }, errors: null }) }, VALID_DATA_ASSERT, 'we throw when the members are null or undefined');
     });
 
-    todo('a document MAY contain `jsonapi` `links` and `included` as members ', function(assert) {
-      assert.notOk('Not Implemented');
+    test('a document MAY contain `jsonapi` `links` and `included` as members ', function(assert) {
+      const VALID_MEMBER_ASSERT = '';
+      let fakeDoc = {  data: { type: 'animal', id: '1', attributes: {} } };
+      let linksDoc = buildDoc(fakeDoc, { links: {} });
+      let jsonApiDoc  = buildDoc(fakeDoc, { jsonapi: {} });
+      let includedDoc = buildDoc(fakeDoc, { included: [] });
+      let allDoc = buildDoc(fakeDoc, {
+        links: {},
+        jsonapi: {},
+        included: [],
+      });
+
+      assert.doesNotThrowWith(() => { push(linksDoc) }, VALID_MEMBER_ASSERT, 'we do not throw for links');
+      assert.doesNotThrowWith(() => { push(jsonApiDoc) }, VALID_MEMBER_ASSERT, 'we do not throw for jsonapi');
+      assert.doesNotThrowWith(() => {push(includedDoc) }, VALID_MEMBER_ASSERT, 'we do not throw for included');
+      assert.doesNotThrowWith(() => {push(allDoc) }, VALID_MEMBER_ASSERT, 'we do not throw for all present');
     });
 
-    todo('a document MUST NOT have the `included` member if `data` is not also present', function(assert) {
-      assert.notOk('Not Implemented');
+    /*
+      This assertion should be enabled at all times (not just in strict-mode); however,
+        ember-data currently allows and many apps have come to rely on being able to push
+        in included-only documents.
+     */
+    test('a document MUST NOT have the `included` member if `data` is not also present', function(assert) {
+      const INVALID_INCLUDED_ASSERT = 'A json-api document MUST NOT contain `included` as a member unless `data` is also present.';
+      let dataAndIncludedDoc = {
+        data: { type: 'animal', id: '1', attributes: {} },
+        included: [],
+      };
+      let includedOnlyDoc = {
+        meta: { pages: 0 },
+        included: []
+      };
+
+      assert.doesNotThrowWith(() => {push(dataAndIncludedDoc) }, INVALID_INCLUDED_ASSERT, 'we do not throw for included');
+      assert.throwsWith(() => {push(includedOnlyDoc) }, INVALID_INCLUDED_ASSERT, 'we do not throw for included');
     });
 
-    todo('(strict-mode) a document MUST NOT contain any non-spec members', function(assert) {
-      assert.notOk('Not Implemented');
+    test('(strict-mode) a document MUST NOT contain any non-spec members', function(assert) {
+      this.enableStrictMode();
+      const VALID_MEMBER_ASSERT = 'is not a valid member of a json-api document.';
+      let baseDoc = {  data: { type: 'animal', id: '1', attributes: {} } };
+      let fakeDoc1 = buildDoc(baseDoc, { unknownMember: undefined });
+      let fakeDoc2 = buildDoc(baseDoc, { unknownMember: null });
+      let fakeDoc3 = buildDoc(baseDoc, { unknownMember: {} });
+
+      assert.throwsWith(() => { push(fakeDoc1) }, VALID_MEMBER_ASSERT, 'We throw for unexpected members');
+      assert.throwsWith(() => { push(fakeDoc2) }, VALID_MEMBER_ASSERT, 'We throw for unexpected members');
+      assert.throwsWith(() => { push(fakeDoc3) }, VALID_MEMBER_ASSERT, 'We throw for unexpected members');
+    });
+
+    test('(loose-mode doesNotThrow) a document MUST NOT contain any non-spec members', function(assert) {
+      const VALID_MEMBER_ASSERT = 'is not a valid member of a json-api document.';
+      let baseDoc = {  data: { type: 'animal', id: '1', attributes: {} } };
+      let fakeDoc1 = buildDoc(baseDoc, { unknownMember: undefined });
+      let fakeDoc2 = buildDoc(baseDoc, { unknownMember: null });
+      let fakeDoc3 = buildDoc(baseDoc, { unknownMember: {} });
+
+      assert.doesNotThrowWith(() => { push(fakeDoc1) }, VALID_MEMBER_ASSERT, 'We throw for unexpected members');
+      assert.doesNotThrowWith(() => { push(fakeDoc2) }, VALID_MEMBER_ASSERT, 'We throw for unexpected members');
+      assert.doesNotThrowWith(() => { push(fakeDoc3) }, VALID_MEMBER_ASSERT, 'We throw for unexpected members');
     });
   });
 

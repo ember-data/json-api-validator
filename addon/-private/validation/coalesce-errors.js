@@ -1,6 +1,7 @@
 import { ValidationError } from './errors/validation-error';
 
-export default function coalesceAndThrowErrors(errors) {
+export default function coalesceAndThrowErrors(issues) {
+  let { errors } = issues;
   if (errors.length === 0) {
     return;
   }

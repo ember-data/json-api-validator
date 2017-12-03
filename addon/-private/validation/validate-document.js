@@ -8,19 +8,24 @@ import validateMeta from './validate-meta';
  *
  * @param validator
  * @param document
- * @param {Array} errors
+ * @param {Array} issues
  * @param {String} path
  *
- * @returns {Array}
+ * @returns {Object} an object with arrays of `errors` and `warnings`.
  */
-export default function _validateDocument(validator, document, errors = [], path = '') {
-  if (itExists(validator, document, errors, path)) {
-    itHasAtLeastOne(validator, document, errors, path);
-    itHasAtLeastOneNonNull(validator, document, errors, path);
-    itHasDataOrErrorsWithMeta(validator, document, errors, path);
-    itCantHaveBoth(validator, document, errors, path);
-    // itDoesntHaveMoreThan(validator, document, errors, path);
-    // includedMustHaveData(validator, document, errors, path);
+export default function _validateDocument(validator, document, issues, path = '') {
+  issues = issues || {
+    errors: [],
+    warnings: [],
+  };
+
+  if (itExists(validator, document, issues, path)) {
+    itHasAtLeastOne(validator, document, issues, path);
+    itHasAtLeastOneNonNull(validator, document, issues, path);
+    itHasDataOrErrorsWithMeta(validator, document, issues, path);
+    itCantHaveBoth(validator, document, issues, path);
+    itHasNoUnknownMembers(validator, document, issues, path);
+    includedMustHaveData(validator, document, issues, path);
     // validateMeta(validator, document, errors, path);
     // validateVersion(validator, document, errors, path);
     // validateData(validator, document, errors, path);
@@ -29,7 +34,7 @@ export default function _validateDocument(validator, document, errors = [], path
     // validateErrors(validator, document, errors, path);
   }
 
-  return errors;
+  return issues;
 }
 
 /**
@@ -37,10 +42,11 @@ export default function _validateDocument(validator, document, errors = [], path
  *
  * @param validator
  * @param document
- * @param errors
+ * @param issues
  * @param path
  */
-function itExists(validator, document, errors, path) {
+function itExists(validator, document, issues, path) {
+  let { errors } = issues;
   let type = typeof document;
 
   if (type !== 'object' || document === null || document instanceof Date) {
@@ -69,10 +75,12 @@ const AT_LEAST_ONE = [
  *
  * @param validator
  * @param document
- * @param errors
+ * @param issues
  * @param path
  */
-function itHasAtLeastOne(validator, document, errors, path) {
+function itHasAtLeastOne(validator, document, issues, path) {
+  let { errors } = issues;
+
   for (let i = 0; i < AT_LEAST_ONE.length; i++) {
     let neededKey = AT_LEAST_ONE[i];
 
@@ -107,11 +115,13 @@ function keyPresentAndNotNull(obj, key) {
  *
  * @param validator
  * @param document
- * @param errors
+ * @param issues
  * @param path
  */
-function itHasAtLeastOneNonNull(validator, document, errors, path) {
+function itHasAtLeastOneNonNull(validator, document, issues, path) {
+  let { errors } = issues;
   let nullMembers = [];
+
   for (let i = 0; i < AT_LEAST_ONE.length; i++) {
     let neededKey = AT_LEAST_ONE[i];
 
@@ -141,10 +151,11 @@ function itHasAtLeastOneNonNull(validator, document, errors, path) {
  *
  * @param validator
  * @param document
- * @param errors
+ * @param issues
  * @param path
  */
-function itHasDataOrErrorsWithMeta(validator, document, errors, path) {
+function itHasDataOrErrorsWithMeta(validator, document, issues, path) {
+  let { errors } = issues;
   let msg = validator.disallowOnlyMetaDocument();
 
   if (msg === false) {
@@ -175,10 +186,12 @@ function itHasDataOrErrorsWithMeta(validator, document, errors, path) {
  *
  * @param validator
  * @param document
- * @param errors
+ * @param issues
  * @param path
  */
-function itCantHaveBoth(validator, document, errors, path) {
+function itCantHaveBoth(validator, document, issues, path) {
+  let { errors } = issues;
+
   if (document.hasOwnProperty('data') && document.hasOwnProperty('errors')) {
     errors.push(new DocumentError({
       document,
@@ -203,21 +216,31 @@ const OPTIONAL_KEYS = [
  *
  * @param validator
  * @param document
- * @param errors
+ * @param issues
  * @param path
  * @returns {boolean}
  */
-function itDoesntHaveMoreThan(validator, document, errors, path) {
+function itHasNoUnknownMembers(validator, document, issues, path) {
+  let { warnings, errors } = issues;
+  let { strictMode } = validator;
   let hasError = false;
 
   Object.keys(document).forEach(key => {
     if (OPTIONAL_KEYS.indexOf(key) === -1 && AT_LEAST_ONE.indexOf(key) === -1) {
-      errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.UNKNOWN_MEMBER, key, document));
+      let issue = new DocumentError({
+        code: DOCUMENT_ERROR_TYPES.UNKNOWN_MEMBER,
+        document,
+        path,
+        validator,
+        value: key
+      });
+
+      strictMode === true ? errors.push(issue) : warnings.push(issue);
       hasError = true;
     }
   });
 
-  return !hasError;
+  return strictMode === true || !hasError;
 }
 
 /**
@@ -225,15 +248,27 @@ function itDoesntHaveMoreThan(validator, document, errors, path) {
  *
  * @param validator
  * @param document
- * @param errors
+ * @param issues
  * @param path
  * @returns {boolean}
  */
-function includedMustHaveData(validator, document, errors, path) {
+function includedMustHaveData(validator, document, issues, path) {
+  let { errors } = issues;
+
   if (document.hasOwnProperty('included') && !document.hasOwnProperty('data')) {
-    errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.DISALLOWED_INCLUDED_MEMBER, 'included', document));
+    let issue = new DocumentError({
+      code: DOCUMENT_ERROR_TYPES.DISALLOWED_INCLUDED_MEMBER,
+      path,
+      document,
+      validator,
+      value: 'included'
+    });
+
+    errors.push(issue);
+
     return false;
   }
+
   return true;
 }
 
@@ -241,11 +276,12 @@ function includedMustHaveData(validator, document, errors, path) {
  *
  * @param validator
  * @param document
- * @param errors
+ * @param issues
  * @param path
  * @returns {boolean}
  */
-function validateVersion(validator, document, errors, path) {
+function validateVersion(validator, document, issues, path) {
+  let { errors } = issues;
   let hasError = false;
 
   if (hasKey(document, 'jsonapi')) {

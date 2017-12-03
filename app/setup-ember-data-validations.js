@@ -11,6 +11,7 @@ export default function setupEmberDataValidations(_Store = Store) {
       let store = this;
 
       this.__validator = new Validator({
+        strictMode: false,
         disallowOnlyMetaDocument() {
           return 'ember-data does not enable json-api documents containing only `meta` as a member to be pushed to the store.';
         },
@@ -21,7 +22,7 @@ export default function setupEmberDataValidations(_Store = Store) {
         formatFallbackType(type) {
           return singularize(dasherize(type));
         },
-        isSubclassOf(subclassType, type) {
+        schemaImplements(subclassType, type) {
           try {
             let a = store.modelFor(type);
             let b = store.modelFor(subclassType);
