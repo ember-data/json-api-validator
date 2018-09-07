@@ -170,13 +170,15 @@ function itHasDataOrErrorsWithMeta(validator, document, issues, path) {
     return true;
   }
 
-  errors.push(new DocumentError({
+  let error = new DocumentError({
     document,
     path,
     code: DOCUMENT_ERROR_TYPES.DISALLOWED_SOLITARY_META_MEMBER,
     validator,
     value: msg
-  }));
+  });
+
+  errors.push(error);
 
   return false;
 }

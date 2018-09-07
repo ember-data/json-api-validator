@@ -11,6 +11,23 @@ function _disallowOnlyMetaDocument() {
 
 export default class JSONAPIValidator {
   constructor(hooks) {
+    /**
+     * when strictMode is disabled, the following "innocuous"
+     * errors become warnings.
+     *
+     * # Documents
+     *
+     * - empty `included`
+     * - unknown members
+     *
+     * The following mistakes will still error
+     *
+     * # Documents
+     *
+     * - payloads that have no entries in `data` nor `included`
+     *
+     * @type {boolean} default `true`
+     */
     this.strictMode = !!hooks.strictMode || true;
     this.schemaFor = hooks.schemaFor;
     this.schemaImplements = hooks.schemaImplements;

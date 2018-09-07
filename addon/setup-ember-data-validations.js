@@ -1,5 +1,5 @@
 import DS from 'ember-data';
-import Validator from 'json-api-validations/-private/validator';
+import Validator from './-private/validator';
 
 const { Store } = DS;
 
