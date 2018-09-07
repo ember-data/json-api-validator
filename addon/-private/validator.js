@@ -3,15 +3,20 @@ import coalesceAndThrowErrors from './validation/coalesce-errors';
 import assertTypeFormat from './utils/assert-type-format';
 import assertMemberFormat from './utils/assert-member-format';
 import normalizeType from './utils/normalize-type';
+import { dasherize } from '@ember/string';
 
-function _disallowOnlyMetaDocument() { return false; }
+function _disallowOnlyMetaDocument() {
+  return 'ember-data does not enable json-api documents containing only `meta` as a member to be pushed to the store.';
+}
 
 export default class JSONAPIValidator {
   constructor(hooks) {
     this.strictMode = !!hooks.strictMode || true;
     this.schemaFor = hooks.schemaFor;
     this.schemaImplements = hooks.schemaImplements;
-    this.formatFallbackType = hooks.formatFallbackType;
+
+    // used to check for a schema by a slightly different name to be friendly
+    this.formatFallbackType = hooks.formatFallbackType || dasherize;
 
     // each one of these hooks should be considered an Ember Data bug
     //  since they are only necessary due to Ember Data bugs
