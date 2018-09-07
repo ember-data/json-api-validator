@@ -1,9 +1,7 @@
-/* global console*/
-import resolver from './helpers/resolver';
-import {
-  setResolver
-} from 'ember-qunit';
-import { start } from 'ember-cli-qunit';
+import Application from '../app';
+import config from '../config/environment';
+import { setApplication } from '@ember/test-helpers';
+import { start } from 'ember-qunit';
 import QUnit from 'qunit';
 
 QUnit.assert.throwsWith = function throwsWith(testFn, message, label) {
@@ -66,5 +64,6 @@ QUnit.assert.doesNotThrowWith = function doesNotThrowWith(testFn, message, label
   }
 };
 
-setResolver(resolver);
+setApplication(Application.create(config.APP));
+
 start();
