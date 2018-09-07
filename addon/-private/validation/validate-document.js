@@ -1,5 +1,15 @@
-import { DocumentError, DOCUMENT_ERROR_TYPES} from './errors/document-error';
+import itExists from './document-rules/it-exists';
+import itHasAtLeastOne from './document-rules/it-has-at-least-one';
+import itHasAtLeastOneNonNull from './document-rules/it-has-at-least-one-non-null';
+import itHasDataOrErrorsWithMeta from './document-rules/it-has-data-or-error-with-meta';
+import itCantHaveBoth from './document-rules/it-cant-have-both';
+import itHasNoUnknownMembers from './document-rules/it-has-no-unknown-members';
+import includedMustHaveData from './document-rules/included-must-have-data';
+import validateJsonapiMember from './validate-jsonapi-member';
 import validateMeta from './validate-meta';
+
+import memberPresent from '../utils/member-present';
+import isPlainObject from '../utils/is-plain-object';
 
 /**
  * Validate that a json-api document conforms to spec
@@ -13,21 +23,23 @@ import validateMeta from './validate-meta';
  *
  * @returns {Object} an object with arrays of `errors` and `warnings`.
  */
-export default function _validateDocument(validator, document, issues, path = '') {
+export default function _validateDocument({ validator, document, issues, path = '' }) {
   issues = issues || {
     errors: [],
     warnings: [],
   };
 
-  if (itExists(validator, document, issues, path)) {
-    itHasAtLeastOne(validator, document, issues, path);
-    itHasAtLeastOneNonNull(validator, document, issues, path);
-    itHasDataOrErrorsWithMeta(validator, document, issues, path);
-    itCantHaveBoth(validator, document, issues, path);
-    itHasNoUnknownMembers(validator, document, issues, path);
-    includedMustHaveData(validator, document, issues, path);
-    // validateMeta(validator, document, errors, path);
-    validateVersion(validator, document, issues, path);
+  let validationContext = { validator, document, issues, path };
+
+  if (itExists(validationContext)) {
+    itHasAtLeastOne(validationContext);
+    itHasAtLeastOneNonNull(validationContext);
+    itHasDataOrErrorsWithMeta(validationContext);
+    itCantHaveBoth(validationContext);
+    itHasNoUnknownMembers(validationContext);
+    includedMustHaveData(validationContext);
+    validateJsonapiMember(validationContext);
+    validateMeta(validationContext);
     // validateData(validator, document, errors, path);
     // validateLinks(validator, document, errors, path);
     // validateIncluded(validator, document, errors, path);
@@ -35,326 +47,6 @@ export default function _validateDocument(validator, document, issues, path = ''
   }
 
   return issues;
-}
-
-/**
- * Validates that a document is an object
- *
- * @param validator
- * @param document
- * @param issues
- * @param path
- */
-function itExists(validator, document, issues, path) {
-  let { errors } = issues;
-  let type = typeof document;
-
-  if (type !== 'object' || document === null || document instanceof Date) {
-    errors.push(new DocumentError({
-      document,
-      path,
-      code: DOCUMENT_ERROR_TYPES.INVALID_DOCUMENT,
-      validator,
-      value: type
-    }));
-    return false;
-  }
-
-  return true;
-}
-
-const AT_LEAST_ONE = [
-  'data',
-  'meta',
-  'errors'
-];
-
-/**
- * Validates that a document has at least one of
- * the following keys: `data`, `meta`, and `errors`.
- *
- * @param validator
- * @param document
- * @param issues
- * @param path
- */
-function itHasAtLeastOne(validator, document, issues, path) {
-  let { errors } = issues;
-
-  for (let i = 0; i < AT_LEAST_ONE.length; i++) {
-    let neededKey = AT_LEAST_ONE[i];
-
-    if (document.hasOwnProperty(neededKey) && document[neededKey] !== undefined) {
-      return true;
-    }
-  }
-
-  errors.push(new DocumentError({
-    document,
-    path,
-    code: DOCUMENT_ERROR_TYPES.MISSING_MANDATORY_MEMBER,
-    validator,
-    value: AT_LEAST_ONE
-  }));
-
-  return false;
-}
-
-function keyPresent(obj, key) {
-  return Object.prototype.hasOwnProperty.call(obj, key) && obj[key] !== undefined;
-}
-
-function keyPresentAndNotNull(obj, key) {
-  return keyPresent(obj, key) && obj[key] !== null;
-}
-
-/**
- * Validates that a document has at least one of
- * the following keys: `data`, `meta`, and `errors`
- * and that the key is non-null
- *
- * @param validator
- * @param document
- * @param issues
- * @param path
- */
-function itHasAtLeastOneNonNull(validator, document, issues, path) {
-  let { errors } = issues;
-  let nullMembers = [];
-
-  for (let i = 0; i < AT_LEAST_ONE.length; i++) {
-    let neededKey = AT_LEAST_ONE[i];
-
-    if (keyPresentAndNotNull(document, neededKey)) {
-      return true;
-    } else if (keyPresent(document, neededKey)) {
-      nullMembers.push(neededKey);
-    }
-  }
-
-  if (nullMembers.length) {
-    errors.push(new DocumentError({
-      document,
-      path,
-      code: DOCUMENT_ERROR_TYPES.NULL_MANDATORY_MEMBER,
-      validator,
-      key: nullMembers,
-      value: AT_LEAST_ONE
-    }));
-  }
-
-  return false;
-}
-
-/**
- * Validates that a document has data or errors in addition to meta
- *
- * @param validator
- * @param document
- * @param issues
- * @param path
- */
-function itHasDataOrErrorsWithMeta(validator, document, issues, path) {
-  let { errors } = issues;
-  let msg = validator.disallowOnlyMetaDocument();
-
-  if (msg === false) {
-    return true;
-  }
-
-  if (!document.hasOwnProperty('meta')) {
-    return true;
-  }
-
-  if (keyPresentAndNotNull(document, 'data') || keyPresentAndNotNull(document, 'errors')) {
-    return true;
-  }
-
-  let error = new DocumentError({
-    document,
-    path,
-    code: DOCUMENT_ERROR_TYPES.DISALLOWED_SOLITARY_META_MEMBER,
-    validator,
-    value: msg
-  });
-
-  errors.push(error);
-
-  return false;
-}
-
-/**
- * Validates that a document does not have both data and errors
- *
- * @param validator
- * @param document
- * @param issues
- * @param path
- */
-function itCantHaveBoth(validator, document, issues, path) {
-  let { errors } = issues;
-
-  if (document.hasOwnProperty('data') && document.hasOwnProperty('errors')) {
-    errors.push(new DocumentError({
-      document,
-      path,
-      code: DOCUMENT_ERROR_TYPES.DISALLOWED_DATA_MEMBER,
-      validator,
-      value: ['data', 'errors']
-    }));
-
-    return false;
-  }
-
-  return true;
-}
-
-const OPTIONAL_KEYS = [
-  'jsonapi',
-  'links',
-  'included'
-];
-/**
- *
- * @param validator
- * @param document
- * @param issues
- * @param path
- * @returns {boolean}
- */
-function itHasNoUnknownMembers(validator, document, issues, path) {
-  let { warnings, errors } = issues;
-  let { strictMode } = validator;
-  let hasError = false;
-
-  Object.keys(document).forEach(key => {
-    if (OPTIONAL_KEYS.indexOf(key) === -1 && AT_LEAST_ONE.indexOf(key) === -1) {
-      let issue = new DocumentError({
-        code: DOCUMENT_ERROR_TYPES.UNKNOWN_MEMBER,
-        document,
-        path,
-        validator,
-        value: key
-      });
-
-      strictMode === true ? errors.push(issue) : warnings.push(issue);
-      hasError = true;
-    }
-  });
-
-  return strictMode === true || !hasError;
-}
-
-/**
- * Spec: http://jsonapi.org/format/#document-top-level
- *
- * @param validator
- * @param document
- * @param issues
- * @param path
- * @returns {boolean}
- */
-function includedMustHaveData(validator, document, issues, path) {
-  let { errors } = issues;
-
-  if (document.hasOwnProperty('included') && !document.hasOwnProperty('data')) {
-    let issue = new DocumentError({
-      code: DOCUMENT_ERROR_TYPES.DISALLOWED_INCLUDED_MEMBER,
-      path,
-      document,
-      validator,
-      value: 'included'
-    });
-
-    errors.push(issue);
-
-    return false;
-  }
-
-  return true;
-}
-
-/**
- *
- * @param validator
- * @param document
- * @param issues
- * @param path
- * @returns {boolean}
- */
-function validateVersion(validator, document, issues, path) {
-  let { errors } = issues;
-  let hasError = false;
-
-  if (hasKey(document, 'jsonapi')) {
-    if (typeof document.jsonapi !== 'object' || document.jsonapi === null) {
-      errors.push(new DocumentError({
-        code: DOCUMENT_ERROR_TYPES.VALUE_MUST_BE_OBJECT,
-        value: document.jsonapi,
-        member: 'jsonapi',
-        path,
-        document,
-        validator,
-      }));
-
-    } else {
-      let keys = Object.keys(document.jsonapi);
-
-      /*
-        The spec allows this to be empty, but we are more strict. If the jsonapi
-        property is defined we expect it to have information.
-       */
-      if (keys.length === 0 || !hasKey(document.jsonapi, 'version')) {
-        errors.push(new DocumentError({
-          code: DOCUMENT_ERROR_TYPES.MISSING_VERSION,
-          value: document.jsonapi,
-          member: 'jsonapi',
-          path,
-          document,
-          validator
-        }));
-        hasError = true;
-      } else {
-
-        /*
-          The spec only allows for 'version' and 'meta'.
-         */
-        for (let i = 0; i < keys.length; i++) {
-          let key = keys[i];
-
-          if (key === 'version') {
-            if (typeof document.jsonapi.version !== 'string' || document.jsonapi.version.length === 0) {
-              errors.push(new DocumentError({
-                code: DOCUMENT_ERROR_TYPES.VERSION_MUST_BE_STRING,
-                value: document.jsonapi.version,
-                member: 'jsonapi',
-                path,
-                document,
-                validator
-              }));
-              hasError = true;
-            }
-
-          } else if (key === 'meta') {
-            hasError = !validateMeta(document.jsonapi, errors, 'jsonapi') || hasError;
-
-          } else {
-            errors.push(new DocumentError({
-              code: DOCUMENT_ERROR_TYPES.UNKNOWN_MEMBER,
-              value: document.jsonapi.version,
-              member: 'jsonapi',
-              path,
-              document,
-              validator
-            }));
-            hasError = true;
-          }
-        }
-      }
-    }
-  }
-
-  return !hasError;
 }
 
 /**
@@ -408,7 +100,7 @@ function validateData(validator, document, errors, path) {
  * @returns {boolean}
  */
 function validateIncluded(validator, document, errors, path) {
-  if (hasKey(document, 'included')) {
+  if (memberPresent(document, 'included')) {
     if (!Array.isArray(document.included)) {
       // TODO error
       return false;
@@ -445,7 +137,7 @@ function validateIncluded(validator, document, errors, path) {
  * @returns {boolean}
  */
 function validateErrors(validator, document, errors, path) {
-  if (hasKey(document, 'errors')) {
+  if (memberPresent(document, 'errors')) {
     return !Array.isArray(document.errors);
   }
 
@@ -483,14 +175,6 @@ function validateLinks(validator, document, errors, path) {
   return true;
 }
 
-function hasKey(document, key) {
-  return Object.keys(document).indexOf(key) !== -1;
-}
-
-function isObject(obj) {
-  return typeof obj === 'object' && obj !== null;
-}
-
 const ID_KEYS = ['type', 'id'];
 const ALLOWED_KEYS = ['meta'];
 const RESOURCE_KEYS = ['links', 'attributes', 'relationships'];
@@ -504,7 +188,7 @@ const ALL_RESOURCE_KEYS = [].concat(ALL_REFERENCE_KEYS, RESOURCE_KEYS);
  * @returns {boolean}
  */
 function isValidResourceStructure(obj) {
-  if (!isObject(obj)) {
+  if (!isPlainObject(obj)) {
     return false;
   }
 
@@ -520,7 +204,7 @@ function isValidResourceStructure(obj) {
   for (let i = 0; i < ID_KEYS.length; i++) {
     let key = ID_KEYS[i];
 
-    if (!obj.hasOwnProperty(key)) {
+    if (!memberPresent(obj, key)) {
       return false;
     }
   }
@@ -528,7 +212,7 @@ function isValidResourceStructure(obj) {
   for (let i = 0; i < RESOURCE_KEYS.length; i++) {
     let key = RESOURCE_KEYS[i];
 
-    if (obj.hasOwnProperty(key)) {
+    if (memberPresent(obj, key)) {
       return true;
     }
   }
@@ -543,7 +227,7 @@ function isValidResourceStructure(obj) {
  * @returns {boolean}
  */
 function isValidReferenceStructure(obj) {
-  if (!isObject(obj)) {
+  if (!isPlainObject(obj)) {
     return false;
   }
 
@@ -559,7 +243,7 @@ function isValidReferenceStructure(obj) {
   for (let i = 0; i < ID_KEYS.length; i++) {
     let key = ID_KEYS[i];
 
-    if (!obj.hasOwnProperty(key)) {
+    if (!memberPresent(obj, key)) {
       return false;
     }
   }

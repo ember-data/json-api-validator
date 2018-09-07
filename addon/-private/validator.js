@@ -1,4 +1,4 @@
-import _validateDocument from './validation/validate-document';
+import _validateDocument from './validation/document/validate-document';
 import coalesceAndThrowErrors from './validation/coalesce-errors';
 import assertTypeFormat from './utils/assert-type-format';
 import assertMemberFormat from './utils/assert-member-format';
@@ -56,7 +56,7 @@ export default class JSONAPIValidator {
    * @returns {Array}
    */
   validateDocument(document) {
-    let issues = _validateDocument(this, document);
+    let issues = _validateDocument({ validator: this, document });
 
     coalesceAndThrowErrors(issues);
   }
