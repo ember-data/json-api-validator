@@ -162,6 +162,12 @@ module('Unit | Document', function(hooks) {
     });
   });
 
+  module('jsonapi member', function() {
+    test('must only contain version', function(assert) {
+
+    });
+  });
+
   module('Top-level Links', function() {
     todo('links MUST be an object if present', function(assert) {
       assert.notOk('Not Implemented');

@@ -286,7 +286,13 @@ function validateVersion(validator, document, issues, path) {
 
   if (hasKey(document, 'jsonapi')) {
     if (typeof document.jsonapi !== 'object' || document.jsonapi === null) {
-      errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.VALUE_MUST_BE_OBJECT, 'jsonapi', document));
+      errors.push(new DocumentError({
+        code: DOCUMENT_ERROR_TYPES.VALUE_MUST_BE_OBJECT,
+        value: document.jsonapi,
+        path,
+        document,
+        validator,
+      }));
 
     } else {
       let keys = Object.keys(document.jsonapi);

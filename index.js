@@ -2,5 +2,5 @@
 'use strict';
 
 module.exports = {
-  name: 'json-api-validations'
+  name: '@ember-data/json-api-validator'
 };

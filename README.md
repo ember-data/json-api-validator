@@ -1,4 +1,4 @@
-# json-api-validations
+# @ember-data/json-api-validator
 
 This README outlines the details of collaborating on this Ember addon.
 

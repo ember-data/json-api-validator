@@ -1,5 +1,5 @@
 {
-  "name": "json-api-validations",
+  "name": "@ember-data/json-api-validator",
   "version": "0.0.0",
   "description": "The default blueprint for ember-cli addons.",
   "keywords": [
