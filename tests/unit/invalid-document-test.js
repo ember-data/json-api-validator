@@ -387,7 +387,51 @@ module('Unit | Document', function(hooks) {
   });
 
   module('jsonapi member', function() {
-    test('must only contain version', function(assert) {});
+    test('MUST contain version', function(assert) {
+      const VALID_MEMBER_ASSERT =
+        'is not a valid member of a json-api document.';
+      let baseDoc = { data: { type: 'animal', id: '1', attributes: {} } };
+      let fakeDoc1 = buildDoc(baseDoc, { jsonapi: undefined });
+      let fakeDoc2 = buildDoc(baseDoc, { jsonapi: null });
+      let fakeDoc3 = buildDoc(baseDoc, { jsonapi: {} });
+      let fakeDoc4 = buildDoc(baseDoc, { jsonapi: { version: '1.0.0' } });
+
+      assert.throwsWith(
+        () => {
+          push(fakeDoc1);
+        },
+        `expected the 'jsonapi' member present in the json-api document to be an object, found value of type undefined`,
+        'We throw for invalid values'
+      );
+      assert.throwsWith(
+        () => {
+          push(fakeDoc2);
+        },
+        `expected the 'jsonapi' member present in the json-api document to be an object, found value of type Null`,
+        'We throw for invalid values'
+      );
+      assert.throwsWith(
+        () => {
+          push(fakeDoc3);
+        },
+        `expected a 'version' member to be present in the 'document.jsonapi' object`,
+        'We throw when missing version'
+      );
+      assert.doesNotThrowWith(
+        () => {
+          push(fakeDoc4);
+        },
+        VALID_MEMBER_ASSERT,
+        'We do not throw when version is present'
+      );
+    });
+
+    test('MAY contain meta', function(assert) {
+
+    });
+    test('MUST NOT contain other members', function(assert) {
+
+    });
   });
 
   module('Top-level Links', function() {

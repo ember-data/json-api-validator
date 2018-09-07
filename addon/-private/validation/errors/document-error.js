@@ -10,6 +10,7 @@ export const DOCUMENT_ERROR_TYPES = {
   UNKNOWN_MEMBER: uniqueErrorId(),
   VALUE_MUST_BE_OBJECT: uniqueErrorId(),
   VERSION_MUST_BE_STRING: uniqueErrorId(),
+  MISSING_VERSION: uniqueErrorId(),
 };
 
 function isObject(obj) {
@@ -47,19 +48,28 @@ function aboutAnOxfordComma(array, quote = '`', joinWord = 'or') {
   return quote + arr.join(quote + ', ' + quote) + quote + ' ' + joinWord + ' ' + quote + last + quote;
 }
 
+function typeOf(value) {
+  let type = typeof value;
+
+  if (type === "object") {
+    if (value instanceof Date) {
+      type = "Date";
+    } else if (value === null) {
+      type = "Null";
+    } else {
+      type = value;
+    }
+  }
+
+  return type;
+}
+
 function buildDocumentErrorMessage(options) {
-  let { value, code, document } = options;
+  let { value, code, document, member } = options;
 
   switch (code) {
     case DOCUMENT_ERROR_TYPES.INVALID_DOCUMENT:
-      if (value === "object") {
-        if (document instanceof Date) {
-          value = "date";
-        } else if (document === null) {
-          value = "null";
-        }
-      }
-      return `Value of type "${value}" is not a valid json-api document.`;
+      return `Value of type "${typeOf(document)}" is not a valid json-api document.`;
 
     case DOCUMENT_ERROR_TYPES.MISSING_MANDATORY_MEMBER:
       return `A json-api document MUST contain one of ${aboutAnOxfordComma(value)} as a member.`;
@@ -77,7 +87,22 @@ function buildDocumentErrorMessage(options) {
       return 'A json-api document MUST NOT contain `included` as a member unless `data` is also present.';
 
     case DOCUMENT_ERROR_TYPES.UNKNOWN_MEMBER:
+      if (member === 'jsonapi') {
+        return `'${value}' is not a valid member of the jsonapi object on a json-api document.`;
+      }
       return `'${value}' is not a valid member of a json-api document.`;
+
+    case DOCUMENT_ERROR_TYPES.MISSING_VERSION:
+      return `expected a 'version' member to be present in the 'document.jsonapi' object`;
+
+    case DOCUMENT_ERROR_TYPES.VERSION_MUST_BE_STRING:
+      return `expected the 'version' member present in the 'document.jsonapi' object to be a string, found value of type ${typeOf(value)}`;
+
+    case DOCUMENT_ERROR_TYPES.VALUE_MUST_BE_OBJECT:
+      if (member === 'jsonapi') {
+        return `expected the 'jsonapi' member present in the json-api document to be an object, found value of type ${typeOf(value)}`;
+      }
+      return ``;
   }
 
   return 'DocumentError';

@@ -27,7 +27,7 @@ export default function _validateDocument(validator, document, issues, path = ''
     itHasNoUnknownMembers(validator, document, issues, path);
     includedMustHaveData(validator, document, issues, path);
     // validateMeta(validator, document, errors, path);
-    // validateVersion(validator, document, errors, path);
+    validateVersion(validator, document, issues, path);
     // validateData(validator, document, errors, path);
     // validateLinks(validator, document, errors, path);
     // validateIncluded(validator, document, errors, path);
@@ -291,6 +291,7 @@ function validateVersion(validator, document, issues, path) {
       errors.push(new DocumentError({
         code: DOCUMENT_ERROR_TYPES.VALUE_MUST_BE_OBJECT,
         value: document.jsonapi,
+        member: 'jsonapi',
         path,
         document,
         validator,
@@ -303,9 +304,16 @@ function validateVersion(validator, document, issues, path) {
         The spec allows this to be empty, but we are more strict. If the jsonapi
         property is defined we expect it to have information.
        */
-      if (keys.length === 0) {
-
-
+      if (keys.length === 0 || !hasKey(document.jsonapi, 'version')) {
+        errors.push(new DocumentError({
+          code: DOCUMENT_ERROR_TYPES.MISSING_VERSION,
+          value: document.jsonapi,
+          member: 'jsonapi',
+          path,
+          document,
+          validator
+        }));
+        hasError = true;
       } else {
 
         /*
@@ -316,7 +324,14 @@ function validateVersion(validator, document, issues, path) {
 
           if (key === 'version') {
             if (typeof document.jsonapi.version !== 'string' || document.jsonapi.version.length === 0) {
-              errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.VERSION_MUST_BE_STRING, 'version', document.jsonapi, 'jsonapi'));
+              errors.push(new DocumentError({
+                code: DOCUMENT_ERROR_TYPES.VERSION_MUST_BE_STRING,
+                value: document.jsonapi.version,
+                member: 'jsonapi',
+                path,
+                document,
+                validator
+              }));
               hasError = true;
             }
 
@@ -324,7 +339,14 @@ function validateVersion(validator, document, issues, path) {
             hasError = !validateMeta(document.jsonapi, errors, 'jsonapi') || hasError;
 
           } else {
-            errors.push(new DocumentError(DOCUMENT_ERROR_TYPES.UNKNOWN_MEMBER, key, document.jsonapi, 'jsonapi'));
+            errors.push(new DocumentError({
+              code: DOCUMENT_ERROR_TYPES.UNKNOWN_MEMBER,
+              value: document.jsonapi.version,
+              member: 'jsonapi',
+              path,
+              document,
+              validator
+            }));
             hasError = true;
           }
         }
