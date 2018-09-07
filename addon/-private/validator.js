@@ -1,35 +1,8 @@
-import dasherize from './utils/dasherize';
 import _validateDocument from './validation/validate-document';
 import coalesceAndThrowErrors from './validation/coalesce-errors';
-
-function formatType(type) {
-  return dasherize(type);
-}
-
-function isDasherized(type) {
- let dasherized = dasherize(type);
-
-  return dasherized === type;
-}
-
-function assertTypeFormat(type, formatter, mode) {
-  let formattedType = formatter(type);
-  let errors = [];
-
-  if (type !== formattedType) {
-    errors.push('yes');
-  }
-
-  if (mode === 'dasherize') {
-    if (!isDasherized(type)) {
-      errors.push('dasherize');
-    }
-  } else if (mode === 'not-dasherized') {
-    if (isDasherized(type)) {
-      errors.push('whoops, dasherized');
-    }
-  }
-}
+import assertTypeFormat from './utils/assert-type-format';
+import assertMemberFormat from './utils/assert-member-format';
+import normalizeType from './utils/normalize-type';
 
 function _disallowOnlyMetaDocument() { return false; }
 
@@ -48,7 +21,8 @@ export default class JSONAPIValidator {
      */
     this.disallowOnlyMetaDocument = hooks.disallowOnlyMetaDocument || _disallowOnlyMetaDocument;
     this.assertTypeFormat = hooks.assertTypeFormat || assertTypeFormat;
-    this.formatType = hooks.formatType || formatType;
+    this.assertMemberFormat = hooks.assertMemberFormat || assertMemberFormat;
+    this.formatType = hooks.formatType || normalizeType;
   }
 
   /**
