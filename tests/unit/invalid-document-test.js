@@ -232,11 +232,11 @@ module('Unit | Document', function(hooks) {
       const VALID_MEMBER_ASSERT = '';
       let fakeDoc = { data: { type: 'animal', id: '1', attributes: {} } };
       let linksDoc = buildDoc(fakeDoc, { links: {} });
-      let jsonApiDoc = buildDoc(fakeDoc, { jsonapi: {} });
+      let jsonApiDoc = buildDoc(fakeDoc, { jsonapi: { version: '1.0' } });
       let includedDoc = buildDoc(fakeDoc, { included: [] });
       let allDoc = buildDoc(fakeDoc, {
         links: {},
-        jsonapi: {},
+        jsonapi: { version: '1.0' },
         included: [],
       });
 
@@ -401,14 +401,14 @@ module('Unit | Document', function(hooks) {
           push(fakeDoc1);
         },
         `expected the 'jsonapi' member present in the json-api document to be an object, found value of type undefined`,
-        'We throw for invalid values'
+        'We throw when the value is explicitly undefined'
       );
       assert.throwsWith(
         () => {
           push(fakeDoc2);
         },
         `expected the 'jsonapi' member present in the json-api document to be an object, found value of type Null`,
-        'We throw for invalid values'
+        'We throw when the value is null'
       );
       assert.throwsWith(
         () => {

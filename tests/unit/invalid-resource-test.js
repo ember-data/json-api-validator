@@ -1,14 +1,16 @@
 import { module, todo } from 'qunit';
-import { setupTest }  from 'ember-qunit';
-import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+import Store from 'ember-data/store';
 import PersonModel from 'dummy/models/person';
 import AnimalModel from 'dummy/models/animal';
 import PetModel from 'dummy/models/pet';
 import DogModel from 'dummy/models/dog';
 import FlyingDogModel from 'dummy/models/flying-dog';
-import setupEmberDataValidations from 'dummy/setup-ember-data-validations';
+import setupEmberDataValidations from '@ember-data/json-api-validator/setup-ember-data-validations';
 
-setupEmberDataValidations(DS.Store);
+let StoreClass = Store.extend({});
+
+setupEmberDataValidations(StoreClass);
 
 function registerModels(owner) {
   owner.register('model:person', PersonModel);
@@ -16,6 +18,7 @@ function registerModels(owner) {
   owner.register('model:pet', PetModel);
   owner.register('model:dog', DogModel);
   owner.register('model:flying-dog', FlyingDogModel);
+  owner.register('service:store', StoreClass);
 }
 
 module('Unit | Resource', function(hooks) {
