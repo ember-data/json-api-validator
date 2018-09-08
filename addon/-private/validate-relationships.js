@@ -1,4 +1,4 @@
-import { dasherize } from 'json-api-validations/-private/utils/dasherize';
+import { dasherize } from '@ember/string';
 import { RELATIONSHIP_ERROR_TYPES, RelationshipError } from './errors/relationship-error';
 
 export default function validateResourceRelationships(schema, relationships, methodName, path = '') {

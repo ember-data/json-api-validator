@@ -426,11 +426,11 @@ module('Unit | Document', function(hooks) {
       );
     });
 
-    test('MAY contain meta', function(assert) {
-
+    todo('MAY contain meta', function(assert) {
+      assert.notOk('Not Implemented');
     });
-    test('MUST NOT contain other members', function(assert) {
-
+    todo('MUST NOT contain other members', function(assert) {
+      assert.notOk('Not Implemented');
     });
   });
 

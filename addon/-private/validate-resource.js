@@ -1,7 +1,7 @@
-import { dasherize } from 'json-api-validations/-private/utils/dasherize';
+/*
+import { dasherize } from '@ember/string';
 import validateResourceRelationships from './validate-relationships';
 import validateResourceAttributes from './validate-attributes';
-import coalesceAndThrowErrors from './coalesce-errors';
 import { RESOURCE_ERROR_TYPES, ResourceError } from './errors/resource-error';
 
 const _EXPECTED_RESOURCE_KEYS = [
@@ -13,10 +13,22 @@ const _MANDATORY_PRIMARY_RESOURCE_KEYS = [
 const _MANDATORY_SECONDARY_RESOURCE_KEYS = [
   'attributes', 'relationships'
 ];
+*/
 
-export default function validateResource(resource, methodName, path) {
-  let errors = [];
+/**
+ *
+ * @param validator
+ * @param document
+ * @param issues
+ * @param target
+ * @param path
+ */
+export default function validateResource(/*{ validator, document, issues, target, path }*/) {
 
+  // TODO don't early return;
+  return true;
+
+  /*
   if (!resource) {
     errors.push(new ResourceError(RESOURCE_ERROR_TYPES.RESOURCE_MISSING, undefined, undefined, resource, path));
 
@@ -31,9 +43,10 @@ export default function validateResource(resource, methodName, path) {
     errors = errors.concat(detectTypeErrors(resource, methodName, path));
   }
 
-  coalesceAndThrowErrors(errors);
+  */
 }
 
+/*
 function detectStructuralErrors(payload, methodName, path) {
   let resourceKeys = Object.keys(payload);
   let errors = [];
@@ -104,3 +117,4 @@ function detectTypeErrors(resource, methodName, path) {
 
   return errors;
 }
+*/
