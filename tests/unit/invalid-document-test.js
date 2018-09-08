@@ -519,8 +519,37 @@ module('Unit | Document', function(hooks) {
   });
 
   module('Top-level Links', function() {
-    todo('links MUST be an object if present', function(assert) {
-      assert.notOk('Not Implemented');
+    test('links MUST be an object if present', function(assert) {
+      const VALID_MEMBER_ASSERT = ''
+      let fakeDoc = { data: { type: 'animal', id: '1', attributes: {} } };
+      let linksDoc1 = buildDoc(fakeDoc, { links: [] });
+      let linksDoc2 = buildDoc(fakeDoc, { links: {}});
+      let linksDoc3 = buildDoc(fakeDoc, { links: null });
+
+
+      assert.throwsWith(
+        () => {
+          push(linksDoc1);
+        },
+        VALID_MEMBER_ASSERT,
+        'we throw for links as array'
+      );
+
+      assert.doesNotThrowWith(
+        () => {
+          push(linksDoc2);
+        },
+        VALID_MEMBER_ASSERT,
+        'we do not throw for links as object'
+      );
+
+      assert.throwsWith(
+        () => {
+          push(linksDoc3);
+        },
+        VALID_MEMBER_ASSERT,
+        'we throw for links as null'
+      );
     });
 
     todo(

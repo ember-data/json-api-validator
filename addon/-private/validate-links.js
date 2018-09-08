@@ -1,3 +1,6 @@
+import { DocumentError, DOCUMENT_ERROR_TYPES} from './errors/document-error';
+import memberPresent from './utils/member-present';
+import isPlainObject from './utils/is-plain-object';
 
 /**
  * `links` MUST be an object if present
@@ -20,12 +23,30 @@
  *
  * Keys MUST either be omitted or have a `null` value to indicate that a particular link is unavailable.
  *
- * @param validator
  * @param document
- * @param errors
+ * @param validator
+ * @param target
+ * @param issues
  * @param path
  * @returns {boolean}
  */
-export default function validateLinks({ validator, document, errors, path }) {
+export default function validateLinks({ document, validator, target, issues, path }) {
+  if (memberPresent(target, 'links')) {
+    if (!isPlainObject(target.links)) {
+
+      // TODO a unique `links errors` class
+      issues.errors.push(new DocumentError({
+        code: DOCUMENT_ERROR_TYPES.VALUE_MUST_BE_OBJECT,
+        value: target.links,
+        member: 'links',
+        target,
+        validator,
+        document,
+        path
+      }));
+
+      return false;
+    }
+  }
   return true;
 }

@@ -1,4 +1,4 @@
-import { module, todo } from 'qunit';
+import { module, todo, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 import Store from 'ember-data/store';
 import PersonModel from 'dummy/models/person';
@@ -7,6 +7,12 @@ import PetModel from 'dummy/models/pet';
 import DogModel from 'dummy/models/dog';
 import FlyingDogModel from 'dummy/models/flying-dog';
 import setupEmberDataValidations from '@ember-data/json-api-validator/setup-ember-data-validations';
+import { run } from '@ember/runloop';
+import deepCopy from '../helpers/deep-copy';
+
+function buildDoc(base, extended) {
+  return Object.assign({}, deepCopy(base), deepCopy(extended));
+}
 
 let StoreClass = Store.extend({});
 
@@ -22,10 +28,18 @@ function registerModels(owner) {
 }
 
 module('Unit | Resource', function(hooks) {
+  let push;
+  let store;
+
   setupTest(hooks);
 
   hooks.beforeEach(function(assert) {
-    this.store = this.owner.lookup('service:store');
+    store = this.owner.lookup('service:store');
+    push = function push(data) {
+      return run(() => {
+        return store.push(data);
+      });
+    };
     registerModels(this.owner);
 
     assert.throwsWith = function throwsWith(testFn, message, label) {
@@ -59,8 +73,37 @@ module('Unit | Resource', function(hooks) {
   });
 
   module('Links', function() {
-    todo('links MUST be an object if present', function(assert) {
-      assert.notOk('Not Implemented');
+    test('links MUST be an object if present', function(assert) {
+      const VALID_MEMBER_ASSERT = ''
+      let fakeDoc = { data: { type: 'animal', id: '1', attributes: {} } };
+      let linksDoc1 = buildDoc(fakeDoc, { links: [] });
+      let linksDoc2 = buildDoc(fakeDoc, { links: {}});
+      let linksDoc3 = buildDoc(fakeDoc, { links: null });
+
+
+      assert.throwsWith(
+        () => {
+          push(linksDoc1);
+        },
+        VALID_MEMBER_ASSERT,
+        'we throw for links as array'
+      );
+
+      assert.doesNotThrowWith(
+        () => {
+          push(linksDoc2);
+        },
+        VALID_MEMBER_ASSERT,
+        'we do not throw for links as object'
+      );
+
+      assert.throwsWith(
+        () => {
+          push(linksDoc3);
+        },
+        VALID_MEMBER_ASSERT,
+        'we throw for links as null'
+      );
     });
 
     todo('links MAY contain `self`, `related` and the pagination links `first`, `last`, `prev` and `next`', function(assert) {
