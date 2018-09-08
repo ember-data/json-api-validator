@@ -8,8 +8,8 @@ import includedMustHaveData from './document-rules/included-must-have-data';
 import validateJsonapiMember from './validate-jsonapi-member';
 import validateMeta from './validate-meta';
 
-import memberPresent from '../utils/member-present';
-import isPlainObject from '../utils/is-plain-object';
+//import memberPresent from '../utils/member-present';
+//import isPlainObject from '../utils/is-plain-object';
 
 /**
  * Validate that a json-api document conforms to spec
@@ -77,9 +77,9 @@ export default function _validateDocument({ validator, document, issues, path = 
  * @param path
  * @returns {boolean}
  */
-function validateData(validator, document, errors, path) {
-  return true;
-}
+// function validateData(validator, document, errors, path) {
+//  return true;
+// }
 
 /**
  * The `included` key of a json-api document MUST be an Array if present and MUST contain only
@@ -98,32 +98,32 @@ function validateData(validator, document, errors, path) {
  * @param errors
  * @param path
  * @returns {boolean}
- */
-function validateIncluded(validator, document, errors, path) {
-  if (memberPresent(document, 'included')) {
-    if (!Array.isArray(document.included)) {
-      // TODO error
-      return false;
-    }
+//  */
+// function validateIncluded(validator, document, errors /*, path*/) {
+//   if (memberPresent(document, 'included')) {
+//     if (!Array.isArray(document.included)) {
+//       // TODO error
+//       return false;
+//     }
 
-    let inc = document.included;
-    let hasError = false;
+//     let inc = document.included;
+//     let hasError = false;
 
-    for (let i = 0; i < inc.length; i++) {
-      if (!isValidResourceStructure(inc[i])) {
-        // TODO error
-        hasError = true;
-      } else {
-        // TODO validate resource
-        // TODO add warnings, warn if not linked in same doc
-      }
-    }
+//     for (let i = 0; i < inc.length; i++) {
+//       if (!isValidResourceStructure(inc[i])) {
+//         // TODO error
+//         hasError = true;
+//       } else {
+//         // TODO validate resource
+//         // TODO add warnings, warn if not linked in same doc
+//       }
+//     }
 
-    return !hasError;
-  }
+//     return !hasError;
+//   }
 
-  return true;
-}
+//   return true;
+// }
 
 /**
  * MUST be an array of error-objects
@@ -136,13 +136,13 @@ function validateIncluded(validator, document, errors, path) {
  * @param path
  * @returns {boolean}
  */
-function validateErrors(validator, document, errors, path) {
-  if (memberPresent(document, 'errors')) {
-    return !Array.isArray(document.errors);
-  }
+// function validateErrors(validator, document, errors, path) {
+//   if (memberPresent(document, 'errors')) {
+//     return !Array.isArray(document.errors);
+//   }
 
-  return true;
-}
+//   return true;
+// }
 
 /**
  * `links` MUST be an object if present
@@ -171,15 +171,15 @@ function validateErrors(validator, document, errors, path) {
  * @param path
  * @returns {boolean}
  */
-function validateLinks(validator, document, errors, path) {
-  return true;
-}
+// function validateLinks(validator, document, errors, path) {
+//   return true;
+// }
 
-const ID_KEYS = ['type', 'id'];
-const ALLOWED_KEYS = ['meta'];
-const RESOURCE_KEYS = ['links', 'attributes', 'relationships'];
-const ALL_REFERENCE_KEYS = [].concat(ID_KEYS, ALLOWED_KEYS);
-const ALL_RESOURCE_KEYS = [].concat(ALL_REFERENCE_KEYS, RESOURCE_KEYS);
+//const ID_KEYS = ['type', 'id'];
+//const ALLOWED_KEYS = ['meta'];
+//const RESOURCE_KEYS = ['links', 'attributes', 'relationships'];
+//const ALL_REFERENCE_KEYS = [].concat(ID_KEYS, ALLOWED_KEYS);
+//const ALL_RESOURCE_KEYS = [].concat(ALL_REFERENCE_KEYS, RESOURCE_KEYS);
 
 /**
  * Loosely determine if an object might be a resource
@@ -187,38 +187,38 @@ const ALL_RESOURCE_KEYS = [].concat(ALL_REFERENCE_KEYS, RESOURCE_KEYS);
  * @param obj
  * @returns {boolean}
  */
-function isValidResourceStructure(obj) {
-  if (!isPlainObject(obj)) {
-    return false;
-  }
+// function isValidResourceStructure(obj) {
+//   if (!isPlainObject(obj)) {
+//     return false;
+//   }
 
-  let keys = Object.keys(obj);
-  for (let i = 0; i < keys.length; i++) {
-    let key = keys[i];
+//   let keys = Object.keys(obj);
+//   for (let i = 0; i < keys.length; i++) {
+//     let key = keys[i];
 
-    if (ALL_RESOURCE_KEYS.indexOf(key) === -1) {
-      return false;
-    }
-  }
+//     if (ALL_RESOURCE_KEYS.indexOf(key) === -1) {
+//       return false;
+//     }
+//   }
 
-  for (let i = 0; i < ID_KEYS.length; i++) {
-    let key = ID_KEYS[i];
+//   for (let i = 0; i < ID_KEYS.length; i++) {
+//     let key = ID_KEYS[i];
 
-    if (!memberPresent(obj, key)) {
-      return false;
-    }
-  }
+//     if (!memberPresent(obj, key)) {
+//       return false;
+//     }
+//   }
 
-  for (let i = 0; i < RESOURCE_KEYS.length; i++) {
-    let key = RESOURCE_KEYS[i];
+//   for (let i = 0; i < RESOURCE_KEYS.length; i++) {
+//     let key = RESOURCE_KEYS[i];
 
-    if (memberPresent(obj, key)) {
-      return true;
-    }
-  }
+//     if (memberPresent(obj, key)) {
+//       return true;
+//     }
+//   }
 
-  return false;
-}
+//   return false;
+// }
 
 /**
  * Loosely determine if an object might be a Reference
@@ -226,27 +226,27 @@ function isValidResourceStructure(obj) {
  * @param obj
  * @returns {boolean}
  */
-function isValidReferenceStructure(obj) {
-  if (!isPlainObject(obj)) {
-    return false;
-  }
+// function isValidReferenceStructure(obj) {
+//   if (!isPlainObject(obj)) {
+//     return false;
+//   }
 
-  let keys = Object.keys(obj);
-  for (let i = 0; i < keys.length; i++) {
-    let key = keys[i];
+//   let keys = Object.keys(obj);
+//   for (let i = 0; i < keys.length; i++) {
+//     let key = keys[i];
 
-    if (ALL_REFERENCE_KEYS.indexOf(key) === -1) {
-      return false;
-    }
-  }
+//     if (ALL_REFERENCE_KEYS.indexOf(key) === -1) {
+//       return false;
+//     }
+//   }
 
-  for (let i = 0; i < ID_KEYS.length; i++) {
-    let key = ID_KEYS[i];
+//   for (let i = 0; i < ID_KEYS.length; i++) {
+//     let key = ID_KEYS[i];
 
-    if (!memberPresent(obj, key)) {
-      return false;
-    }
-  }
+//     if (!memberPresent(obj, key)) {
+//       return false;
+//     }
+//   }
 
-  return true;
-}
+//   return true;
+// }

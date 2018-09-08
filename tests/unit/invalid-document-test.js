@@ -426,48 +426,48 @@ module('Unit | Document', function(hooks) {
       );
     });
 
-    test('MAY contain meta', function(assert) {
+   // test('MAY contain meta', function(assert) {
 
-    });
-    test('MUST NOT contain other members', function(assert) {
+   // });
+   // test('MUST NOT contain other members', function(assert) {
 
-    });
+   // });
   });
 
   module('Top-level Links', function() {
     todo('links MUST be an object if present', function(assert) {
-      assert.notOk('Not Implemented');
+      assert.notOk(false,'Not Implemented');
     });
 
     todo(
       'links MAY contain `self`, `related` and the pagination links `first`, `last`, `prev` and `next`',
       function(assert) {
-        assert.notOk('Not Implemented');
+        assert.notOk(false,'Not Implemented');
       }
     );
 
     todo(
       'included `self` and `related` links MUST either be string URLs or an object with members `href` (a string URL) and an optional `meta` object',
       function(assert) {
-        assert.notOk('Not Implemented');
+        assert.notOk(false,'Not Implemented');
       }
     );
 
     todo(
       'included pagination links MUST either be null, string URLs or an object with members `href` (a string URL) and an optional `meta` object',
       function(assert) {
-        assert.notOk('Not Implemented');
+        assert.notOk(false,'Not Implemented');
       }
     );
 
     todo('(strict-mode) links MAY NOT contain any non-spec members', function(
       assert
     ) {
-      assert.notOk('Not Implemented');
+      assert.notOk(false,'Not Implemented');
     });
 
     todo('a document MUST ', function(assert) {
-      assert.notOk('Not Implemented');
+      assert.notOk(false,'Not Implemented');
     });
   });
 
@@ -475,14 +475,14 @@ module('Unit | Document', function(hooks) {
     todo(
       'Collections MUST be uniformly resource-objects or resource-identifiers',
       function(assert) {
-        assert.notOk('Not Implemented');
+        assert.notOk(false,'Not Implemented');
       }
     );
 
     todo('(strict mode) Collection MUST be of a uniform type', function(
       assert
     ) {
-      assert.notOk('Not Implemented');
+      assert.notOk(false,'Not Implemented');
     });
   });
 
@@ -490,24 +490,24 @@ module('Unit | Document', function(hooks) {
     todo(
       '(strict mode) entries in included MUST NOT be resource-identifiers',
       function(assert) {
-        assert.notOk('Not Implemented');
+        assert.notOk(false,'Not Implemented');
       }
     );
 
     todo('(strict mode) entries MUST trace linkage to primary data', function(
       assert
     ) {
-      assert.notOk('Not Implemented');
+      assert.notOk(false,'Not Implemented');
     });
 
     todo('a document MUST ', function(assert) {
-      assert.notOk('Not Implemented');
+      assert.notOk(false,'Not Implemented');
     });
   });
 
   module('Errors', function() {
     todo('a document MUST ', function(assert) {
-      assert.notOk('Not Implemented');
+      assert.notOk(false,'Not Implemented');
     });
   });
 });

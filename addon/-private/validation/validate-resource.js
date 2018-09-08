@@ -3,6 +3,7 @@ import validateResourceRelationships from './validate-relationships';
 import validateResourceAttributes from './validate-attributes';
 import coalesceAndThrowErrors from './coalesce-errors';
 import { RESOURCE_ERROR_TYPES, ResourceError } from './errors/resource-error';
+import { schemaFor } from 'json-api-validations/setup-ember-data-validations';
 
 const _EXPECTED_RESOURCE_KEYS = [
   'id', 'type', 'attributes', 'relationships','links', 'meta'

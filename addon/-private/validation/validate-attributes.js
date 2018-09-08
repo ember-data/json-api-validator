@@ -1,4 +1,5 @@
 import { AttributeError, ATTRIBUTE_ERROR_TYPES } from './errors/attribute-error';
+import { schemaFor } from 'json-api-validations/setup-ember-data-validations';
 
 export default function validateResourceAttributes(schema, attributes, methodName, path) {
   if (typeof attributes !== 'object' || attributes === null) {
