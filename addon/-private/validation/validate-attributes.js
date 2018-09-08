@@ -42,7 +42,6 @@ export function findAttribute(schema, propertyName) {
   }
 
   if (schema.inherits) {
-    schema
     return findAttribute(schemaFor(schema.inherits), propertyName);
   }
 
