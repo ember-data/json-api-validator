@@ -1,6 +1,6 @@
 import { DocumentError, DOCUMENT_ERROR_TYPES } from '../errors/document-error';
-import memberPresent from '../../utils/member-present';
-import memberDefinedAndNotNull from '../../utils/member-defined-and-not-null';
+import memberPresent from '../utils/member-present';
+import memberDefinedAndNotNull from '../utils/member-defined-and-not-null';
 
 /**
  * Validates that a document has data or errors in addition to meta

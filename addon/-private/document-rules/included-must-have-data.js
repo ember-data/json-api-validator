@@ -1,6 +1,6 @@
 import { DocumentError, DOCUMENT_ERROR_TYPES } from '../errors/document-error';
-import memberPresent from '../../utils/member-present';
-import memberDefined from '../../utils/member-defined';
+import memberPresent from '../utils/member-present';
+import memberDefined from '../utils/member-defined';
 
 /**
  * Spec: http://jsonapi.org/format/#document-top-level

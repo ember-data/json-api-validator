@@ -1,5 +1,5 @@
 import { DocumentError, DOCUMENT_ERROR_TYPES } from '../errors/document-error';
-import memberPresent from '../../utils/member-present';
+import memberPresent from '../utils/member-present';
 
 /**
  * Validates that a document does not have both data and errors

@@ -1,7 +1,7 @@
 import { NICE_ERROR_TYPES, ValidationError, createNiceErrorMessage, uniqueErrorId } from './validation-error';
-import isPlainObject from '../../utils/is-plain-object';
-import aboutAnOxfordComma from '../../utils/about-an-oxford-comma';
-import typeOf from '../../utils/type-of';
+import isPlainObject from '../utils/is-plain-object';
+import aboutAnOxfordComma from '../utils/about-an-oxford-comma';
+import typeOf from '../utils/type-of';
 
 export const DOCUMENT_ERROR_TYPES = {
   INVALID_DOCUMENT: uniqueErrorId(),
@@ -14,6 +14,7 @@ export const DOCUMENT_ERROR_TYPES = {
   VALUE_MUST_BE_OBJECT: uniqueErrorId(),
   VERSION_MUST_BE_STRING: uniqueErrorId(),
   MISSING_VERSION: uniqueErrorId(),
+  INVALID_INCLUDED_VALUE: uniqueErrorId(),
 };
 
 export class DocumentError extends ValidationError {
@@ -67,6 +68,10 @@ function buildDocumentErrorMessage(options) {
 
     case DOCUMENT_ERROR_TYPES.VALUE_MUST_BE_OBJECT:
       return `expected the '${member}' member present in the json-api document to be an object, found value of type ${typeOf(value)}`;
+
+    case DOCUMENT_ERROR_TYPES.INVALID_INCLUDED_VALUE:
+      return `expected document.included to be an Array, instead found value of type ${typeOf(value)}`;
+
   }
 
   return 'DocumentError';

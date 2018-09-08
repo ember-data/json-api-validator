@@ -1,8 +1,8 @@
 import { DocumentError, DOCUMENT_ERROR_TYPES } from './errors/document-error';
 import validateMeta from './validate-meta';
-import memberPresent from '../utils/member-present';
-import memberDefined from '../utils/member-defined';
-import memberDefinedAndNotNull from "../utils/member-defined-and-not-null";
+import memberPresent from './utils/member-present';
+import memberDefined from './utils/member-defined';
+import memberDefinedAndNotNull from "./utils/member-defined-and-not-null";
 
 /**
  *

@@ -1,5 +1,5 @@
 import { DocumentError, DOCUMENT_ERROR_TYPES } from '../errors/document-error';
-import memberDefined from '../../utils/member-defined';
+import memberDefined from '../utils/member-defined';
 
 const AT_LEAST_ONE = ['data', 'meta', 'errors'];
 

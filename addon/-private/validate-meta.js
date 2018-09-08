@@ -1,6 +1,6 @@
 import { DocumentError, DOCUMENT_ERROR_TYPES} from './errors/document-error';
-import memberPresent from '../utils/member-present';
-import isPlainObject from '../utils/is-plain-object';
+import memberPresent from './utils/member-present';
+import isPlainObject from './utils/is-plain-object';
 
 /**
  * @param validator
