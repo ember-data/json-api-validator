@@ -40,7 +40,7 @@ export default function validateResource(/*{ validator, document, issues, target
 
   } else {
     errors = errors.concat(detectStructuralErrors(resource, methodName, path));
-    errors = errors.concat(detectTypeErrors(resource, methodName, path));
+    errors = errors.concat(detectTypeErrors(resource, methodName, path, validator));
   }
 
   */
@@ -84,7 +84,7 @@ function detectStructuralErrors(payload, methodName, path) {
   return errors;
 }
 
-function detectTypeErrors(resource, methodName, path) {
+function detectTypeErrors(resource, methodName, path, validator) {
   let schema;
   let errors = [];
 
@@ -101,16 +101,16 @@ function detectTypeErrors(resource, methodName, path) {
       errors.push(new ResourceError(RESOURCE_ERROR_TYPES.INVALID_TYPE_FORMAT, dasherized, 'type', resource.type, path));
     }
 
-    schema = schemaFor(dasherized);
+    schema = validator.schemaFor(dasherized);
 
     if (schema === undefined) {
       errors.push(new ResourceError(RESOURCE_ERROR_TYPES.UNKNOWN_SCHEMA, resource.type, 'type', resource.type, path));
     } else {
       if (resource.hasOwnProperty('attributes')) {
-        errors = errors.concat(validateResourceAttributes(schema, resource.attributes, methodName, path));
+        errors = errors.concat(validateResourceAttributes(schema, resource.attributes, methodName, path, validator));
       }
       if (resource.hasOwnProperty('relationships')) {
-        errors = errors.concat(validateResourceRelationships(schema, resource.relationships, methodName, path));
+        errors = errors.concat(validateResourceRelationships(schema, resource.relationships, methodName, path, validator));
       }
     }
   }

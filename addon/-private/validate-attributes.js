@@ -1,8 +1,21 @@
-import { AttributeError, ATTRIBUTE_ERROR_TYPES } from './errors/attribute-error';
+import {
+  AttributeError,
+  ATTRIBUTE_ERROR_TYPES
+} from "./errors/attribute-error";
 
-export default function validateResourceAttributes(schema, attributes, methodName, path) {
-  if (typeof attributes !== 'object' || attributes === null) {
-    return [new Error(`Expected the attributes hash for a resource to be an object, found '${attributes}'`)];
+export default function validateResourceAttributes(
+  schema,
+  attributes,
+  methodName,
+  path,
+  validator
+) {
+  if (typeof attributes !== "object" || attributes === null) {
+    return [
+      new Error(
+        `Expected the attributes hash for a resource to be an object, found '${attributes}'`
+      )
+    ];
   }
 
   let foundRelationshipKeys = Object.keys(attributes);
@@ -11,21 +24,37 @@ export default function validateResourceAttributes(schema, attributes, methodNam
   for (let i = 0; i < foundRelationshipKeys.length; i++) {
     let key = foundRelationshipKeys[i];
     let data = attributes[key];
-    let attr = findAttribute(schema, key);
+    let attr = findAttribute(schema, key, validator);
 
     if (attr === undefined) {
-      errors.push(new AttributeError(ATTRIBUTE_ERROR_TYPES.UNKNOWN_ATTRIBUTE, schema.type, key, data, path));
+      errors.push(
+        new AttributeError(
+          ATTRIBUTE_ERROR_TYPES.UNKNOWN_ATTRIBUTE,
+          schema.type,
+          key,
+          data,
+          path
+        )
+      );
     }
 
-    if (typeof data === 'undefined') {
-      errors.push(new AttributeError(ATTRIBUTE_ERROR_TYPES.UNDEFINED_VALUE, schema.type, key, data, path));
+    if (typeof data === "undefined") {
+      errors.push(
+        new AttributeError(
+          ATTRIBUTE_ERROR_TYPES.UNDEFINED_VALUE,
+          schema.type,
+          key,
+          data,
+          path
+        )
+      );
     }
   }
 
   return errors;
 }
 
-export function findAttribute(schema, propertyName) {
+export function findAttribute(schema, propertyName, validator) {
   let arr = schema.attr;
 
   if (arr) {
@@ -33,15 +62,15 @@ export function findAttribute(schema, propertyName) {
       if (arr[i] === propertyName) {
         let meta = {};
         meta.key = propertyName;
-        meta.kind = 'attribute';
+        meta.kind = "attribute";
         meta.for = schema.type;
         return meta;
       }
     }
   }
 
-  if (schema.inherits) {
-    return findAttribute(schemaFor(schema.inherits), propertyName);
+    if (schema.inherits) {
+        return findAttribute(validator.schemaFor(schema.inherits), propertyName);
   }
 
   return undefined;
