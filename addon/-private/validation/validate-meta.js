@@ -9,7 +9,9 @@ import isPlainObject from '../utils/is-plain-object';
  * @param path
  * @returns {boolean}
  */
-export default function validateObjectMeta({ validator, document, errors, path }) {
+export default function validateObjectMeta({ validator, document, issues, path }) {
+  let { errors } = issues;
+
   if (memberPresent(document, 'meta')) {
     if (!isPlainObject(document.meta)) {
       errors.push(new DocumentError({
