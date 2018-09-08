@@ -6,7 +6,7 @@ import AnimalModel from 'dummy/models/animal';
 import PetModel from 'dummy/models/pet';
 import DogModel from 'dummy/models/dog';
 import FlyingDogModel from 'dummy/models/flying-dog';
-import setupEmberDataValidations from 'dummy/setup-ember-data-validations';
+import setupEmberDataValidations from '@ember-data/json-api-validator/setup-ember-data-validations';
 
 setupEmberDataValidations(DS.Store);
 
@@ -41,13 +41,13 @@ module('Unit | Resource', function(hooks) {
 
   module('Members', function() {
     todo('a resource MUST be an object', function(assert) {
-      assert.notOk('Not Implemented');
+      assert.notOk(false,'Not Implemented');
     });
   });
 
   module('Type', function() {
     todo('a resource MUST ', function(assert) {
-      assert.notOk('Not Implemented');
+      assert.notOk(false,'Not Implemented');
     });
   });
 
@@ -57,45 +57,45 @@ module('Unit | Resource', function(hooks) {
 
   module('Links', function() {
     todo('links MUST be an object if present', function(assert) {
-      assert.notOk('Not Implemented');
+      assert.notOk(false,'Not Implemented');
     });
 
     todo('links MAY contain `self`, `related` and the pagination links `first`, `last`, `prev` and `next`', function(assert) {
-      assert.notOk('Not Implemented');
+      assert.notOk(false,'Not Implemented');
     });
 
     todo('included `self` and `related` links MUST either be string URLs or an object with members `href` (a string URL) and an optional `meta` object', function(assert) {
-      assert.notOk('Not Implemented');
+      assert.notOk(false,'Not Implemented');
     });
 
     todo('included pagination links MUST either be null, string URLs or an object with members `href` (a string URL) and an optional `meta` object', function(assert) {
-      assert.notOk('Not Implemented');
+      assert.notOk(false,'Not Implemented');
     });
 
     todo('(strict-mode) links MAY NOT contain any non-spec members', function(assert) {
-      assert.notOk('Not Implemented');
+      assert.notOk(false,'Not Implemented');
     });
 
     todo('a document MUST ', function(assert) {
-      assert.notOk('Not Implemented');
+      assert.notOk(false,'Not Implemented');
     });
   });
 
   module('Attributes', function() {
     todo('a resource MUST ', function(assert) {
-      assert.notOk('Not Implemented');
+      assert.notOk(false,'Not Implemented');
     });
   });
 
   module('Relationships', function() {
     todo('a resource MUST ', function(assert) {
-      assert.notOk('Not Implemented');
+      assert.notOk(false,'Not Implemented');
     });
   });
 
   module('Errors', function() {
     todo('a resource MUST ', function(assert) {
-      assert.notOk('Not Implemented');
+      assert.notOk(false,'Not Implemented');
     });
   });
 });

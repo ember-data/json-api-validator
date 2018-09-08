@@ -1,5 +1,6 @@
 import { dasherize } from 'json-api-validations/-private/utils/dasherize';
 import { RELATIONSHIP_ERROR_TYPES, RelationshipError } from './errors/relationship-error';
+import { schemaFor } from 'json-api-validations/setup-ember-data-validations';
 
 export default function validateResourceRelationships(schema, relationships, methodName, path = '') {
   if (typeof relationships !== 'object' || relationships === null) {
