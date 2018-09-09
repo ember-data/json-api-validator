@@ -3,13 +3,8 @@ import {
   ATTRIBUTE_ERROR_TYPES
 } from "./errors/attribute-error";
 
-export default function validateResourceAttributes(
-  schema,
-  attributes,
-  methodName,
-  path,
-  validator
-) {
+export default function validateResourceAttributes(contextObject) {
+  let {schema, attributes, methodName, path, validator} = contextObject;
   if (typeof attributes !== "object" || attributes === null) {
     return [
       new Error(
@@ -24,7 +19,7 @@ export default function validateResourceAttributes(
   for (let i = 0; i < foundRelationshipKeys.length; i++) {
     let key = foundRelationshipKeys[i];
     let data = attributes[key];
-    let attr = findAttribute(schema, key, validator);
+    let attr = findAttribute({schema, key, validator});
 
     if (attr === undefined) {
       errors.push(
@@ -54,7 +49,7 @@ export default function validateResourceAttributes(
   return errors;
 }
 
-export function findAttribute(schema, propertyName, validator) {
+export function findAttribute({schema, key: propertyName, validator}) {
   let arr = schema.attr;
 
   if (arr) {
@@ -69,8 +64,8 @@ export function findAttribute(schema, propertyName, validator) {
     }
   }
 
-    if (schema.inherits) {
-        return findAttribute(validator.schemaFor(schema.inherits), propertyName);
+  if (schema.inherits) {
+      return findAttribute({schema: validator.schemaFor(schema.inherits), key: propertyName, validator});
   }
 
   return undefined;
