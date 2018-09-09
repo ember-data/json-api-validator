@@ -13,6 +13,7 @@ import validateLinks from './validate-links';
 
 import JSONAPIValidator from '@ember-data/json-api-validator/-private/validator';
 import { Document } from 'jsonapi-typescript';
+import { IValidationContext } from 'ember-data';
 
 
 interface IValidateDocument {
@@ -45,7 +46,7 @@ export default function _validateDocument({
     warnings: [],
   };
 
-  let validationContext = {
+  let validationContext: IValidationContext = {
     validator,
     document,
     target: document,

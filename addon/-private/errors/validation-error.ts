@@ -1,7 +1,11 @@
+import { IErrorOptions } from "ember-data";
+
 export class ValidationError extends Error {
-  constructor(message) {
+  constructor(message: string) {
     super(message);
+
     this.name = this.constructor.name;
+
     if (typeof Error.captureStackTrace === 'function') {
       Error.captureStackTrace(this, this.constructor);
     } else {
@@ -22,7 +26,7 @@ export const NICE_ERROR_TYPES = {
   OBJECT_ERROR: 3,
 };
 
-export function createNiceErrorMessage(options) {
+export function createNiceErrorMessage(options: IErrorOptions) {
   let { key, value, path, code } = options;
   let parts, message, depth;
 
@@ -69,7 +73,7 @@ export function createNiceErrorMessage(options) {
   }
 }
 
-function padLeft(str, count = 0, char = ' ') {
+function padLeft(str: string, count = 0, char = ' ') {
   let s = '';
 
   while (count--) {

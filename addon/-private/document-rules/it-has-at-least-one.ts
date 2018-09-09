@@ -1,6 +1,8 @@
 import { DocumentError, DOCUMENT_ERROR_TYPES } from '../errors/document-error';
 import memberDefined from '../utils/member-defined';
 
+import { IValidationContext } from 'ember-data';
+
 const AT_LEAST_ONE = ['data', 'meta', 'errors'];
 
 /**
@@ -12,7 +14,7 @@ const AT_LEAST_ONE = ['data', 'meta', 'errors'];
  * @param issues
  * @param path
  */
-export default function itHasAtLeastOne({ validator, document, issues, path }) {
+export default function itHasAtLeastOne({ validator, document, issues, path }: IValidationContext) {
   let { errors } = issues;
 
   for (let i = 0; i < AT_LEAST_ONE.length; i++) {

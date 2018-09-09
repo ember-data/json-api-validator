@@ -1,5 +1,7 @@
 import { DocumentError, DOCUMENT_ERROR_TYPES } from '../errors/document-error';
 
+import { IValidationContext } from 'ember-data';
+
 /**
  * Validates that a document is an object
  *
@@ -8,7 +10,7 @@ import { DocumentError, DOCUMENT_ERROR_TYPES } from '../errors/document-error';
  * @param issues
  * @param path
  */
-export default function documentExists({ validator, document, issues, path }) {
+export default function documentExists({ validator, document, issues, path }: IValidationContext) {
   let { errors } = issues;
   let type = typeof document;
 
