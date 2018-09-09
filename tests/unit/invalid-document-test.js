@@ -588,17 +588,117 @@ module('Unit | Document', function(hooks) {
       );
     });
 
-    todo(
+    test(
       'links MAY contain `self`, `related` and the pagination links `first`, `last`, `prev` and `next`',
       function(assert) {
-        assert.notOk('Not Implemented');
+        let fakeDoc = { data: { type: 'animal', id: '1', attributes: {} } };
+        let linksSelf = buildDoc(fakeDoc, { links: { self: 'https://api.example.com/foos/1' } });
+        let linksRelated = buildDoc(fakeDoc, { links: { related: 'https://api.example.com/foos/1/bars' } });
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksSelf);
+          },
+          `'<document>.links' MAY contain self`,
+          'we do not throw for self in links'
+        );
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksRelated);
+          },
+          `'<document>.links' MAY contain related`,
+          'we do not throw for related in links'
+        );
       }
     );
 
-    todo(
+    test(
       'included `self` and `related` links MUST either be string URLs or an object with members `href` (a string URL) and an optional `meta` object',
       function(assert) {
-        assert.notOk('Not Implemented');
+        let fakeDoc = { data: { type: 'animal', id: '1', attributes: {} } };
+        let linksSelf1 = buildDoc(fakeDoc, { links: { self: ['https://api.example.com/foos/1/bars'] } });
+        let linksSelf2 = buildDoc(fakeDoc, { links: { self: 'https://api.example.com/foos/1/bars' } });
+        let linksSelf3 = buildDoc(fakeDoc, { links: { self: { href: 'https://api.example.com/foos/1/bars' } } });
+        let linksSelf4 = buildDoc(fakeDoc, { links: { self: { href: ['https://api.example.com/foos/1/bars'] } } });
+        let linksSelf5 = buildDoc(fakeDoc, { links: { self: { href: 'https://api.example.com/foos/1/bars', meta: { count: 10 } } } });
+
+        let linksRelated1 = buildDoc(fakeDoc, { links: { related: 'https://api.example.com/foos/1/bars' } });
+        let linksRelated2 = buildDoc(fakeDoc, { links: { related: ['https://api.example.com/foos/1/bars'] } });
+        let linksRelated3 = buildDoc(fakeDoc, { links: { related: { href: 'https://api.example.com/foos/1/bars' } } });
+        let linksRelated4 = buildDoc(fakeDoc, { links: { related: { href: 'https://api.example.com/foos/1/bars', meta: { count: 10 } } } });
+
+        assert.throwsWith(
+          () => {
+            push(linksSelf1);
+          },
+          `'<document>.links' MUST contain self as string URLs or an object`,
+          'we throw for self as array'
+        );
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksSelf2);
+          },
+          `'<document>.links' MUST contain self as string URLs or an object`,
+          'we do not throw for self as string URL'
+        );
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksSelf3);
+          },
+          `'<document>.links' MUST contain self as string URLs or an object`,
+          'we do not throw for self as object with href but not meta'
+        );
+
+        assert.throwsWith(
+          () => {
+            push(linksSelf4);
+          },
+          `'<document>.links' MUST contain self as string URLs or an object`,
+          'we do throw for self as object with href as array'
+        );
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksSelf5);
+          },
+          `'<document>.links' MUST contain self as string URLs or an object`,
+          'we do not throw for self as object with href AND with meta object'
+        );
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksRelated1);
+          },
+          `'<document>.links' MUST contain related as string URLs or an object`,
+          'we do not throw for related as string URL'
+        );
+
+        assert.throwsWith(
+          () => {
+            push(linksRelated2);
+          },
+          `'<document>.links' MUST contain related as string URLs or an object`,
+          'we do throw for related as array'
+        );
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksRelated3);
+          },
+          `'<document>.links' MUST contain related as string URLs or an object`,
+          'we do not throw for related as object but no meta'
+        );
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksRelated4);
+          },
+          `'<document>.links' MUST contain related as string URLs or an object`,
+          'we do not throw for related as object AND with meta object'
+        );
       }
     );
 
