@@ -1,4 +1,4 @@
-export default function typeOf(value) {
+export default function typeOf(value: any): string {
   let type = typeof value;
 
   if (type === "object") {

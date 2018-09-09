@@ -5,8 +5,32 @@ import assertMemberFormat from './utils/assert-member-format';
 import normalizeType from './utils/normalize-type';
 import { dasherize } from '@ember/string';
 
-export default class JSONAPIValidator {
-  constructor(hooks) {
+import { Document } from 'jsonapi-typescript';
+
+export interface IJSONAPIValidatorOptions {
+  strictMode: boolean;
+  schemaFor: unknown;
+  schemaImplements: unknown;
+  formatFallbackType: (value: string) => string;
+  disallowMetaOnlyDocuments: () => boolean;
+  disallowMetaOnlyRelationships: () => boolean;
+  assertTypeFormat: unknown;
+  assertMemberFormat: unknown;
+  formatType: unknown;
+}
+
+export default class JSONAPIValidator implements IJSONAPIValidatorOptions {
+  strictMode: boolean;
+  schemaFor: unknown;
+  schemaImplements: unknown;
+  formatFallbackType: (value: string) => string;
+  disallowMetaOnlyDocuments: () => boolean;
+  disallowMetaOnlyRelationships: () => boolean;
+  assertTypeFormat: unknown;
+  assertMemberFormat: unknown;
+  formatType: unknown;
+
+  constructor(hooks: IJSONAPIValidatorOptions) {
     /**
      * when strictMode is disabled, the following "innocuous"
      * errors become warnings.
@@ -50,7 +74,7 @@ export default class JSONAPIValidator {
    * @param document
    * @returns {Array}
    */
-  validateDocument(document) {
+  validateDocument(document: Document) {
     let issues = _validateDocument({ validator: this, document });
 
     coalesceAndThrowErrors(issues);
