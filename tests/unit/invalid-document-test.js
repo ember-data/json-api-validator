@@ -10,9 +10,10 @@ import setupEmberDataValidations from '@ember-data/json-api-validator/setup-embe
 import { run } from '@ember/runloop';
 import Ember from 'ember';
 import deepCopy from '../helpers/deep-copy';
+import deepMerge from '../helpers/deep-merge';
 
 function buildDoc(base, extended) {
-  return Object.assign({}, deepCopy(base), deepCopy(extended));
+  return deepMerge({}, deepCopy(base), deepCopy(extended));
 }
 
 let StoreClass = Store.extend({});
@@ -50,16 +51,20 @@ module('Unit | Document', function(hooks) {
     };
     validator = store.__validator;
 
-    let disallowHook = validator.disallowOnlyMetaDocument;
-    let allowHook = () => {
-      return false;
-    };
+    let disallowHook = () => true;
+    let allowHook = () => false;
 
     this.disallowMetaOnlyDocuments = () => {
-      validator.disallowOnlyMetaDocument = disallowHook;
+      validator.disallowMetaOnlyDocuments = disallowHook;
     };
     this.allowMetaOnlyDocuments = () => {
-      validator.disallowOnlyMetaDocument = allowHook;
+      validator.disallowMetaOnlyDocuments = allowHook;
+    };
+    this.disallowMetaOnlyRelationships = () => {
+      validator.disallowMetaOnlyRelationships = disallowHook;
+    };
+    this.allowMetaOnlyRelationships = () => {
+      validator.disallowMetaOnlyRelationships = allowHook;
     };
     this.enableStrictMode = () => {
       validator.strictMode = true;
@@ -122,44 +127,6 @@ module('Unit | Document', function(hooks) {
         },
         VALID_DOC_ASSERT,
         'we do not throw for {}'
-      );
-    });
-
-    test('(ember-data-quirk) a json-api document MUST have `data` or `errors` in addition to `meta`', function(assert) {
-      this.disallowMetaOnlyDocuments();
-      const META_ONLY_ASSERT =
-        'ember-data does not enable json-api documents containing only `meta` as a member to be pushed to the store.';
-
-      assert.throwsWith(
-        () => {
-          push({ data: undefined, meta: { pages: 0 } });
-        },
-        META_ONLY_ASSERT,
-        'we throw when other available members are undefined'
-      );
-      assert.throwsWith(
-        () => {
-          push({ data: null, meta: { pages: 0 } });
-        },
-        META_ONLY_ASSERT,
-        'we throw when other available members are null'
-      );
-      assert.throwsWith(
-        () => {
-          push({ meta: { pages: 0 } });
-        },
-        META_ONLY_ASSERT,
-        'we throw for meta-only documents'
-      );
-      assert.doesNotThrowWith(
-        () => {
-          push({
-            data: { type: 'animal', id: '1', attributes: {} },
-            meta: { pages: 0 },
-          });
-        },
-        META_ONLY_ASSERT,
-        'we do not throw when other members are defined'
       );
     });
 
@@ -386,10 +353,8 @@ module('Unit | Document', function(hooks) {
     });
   });
 
-  module('jsonapi member', function() {
+  module('Top-level jsonapi member', function() {
     test('MUST contain version', function(assert) {
-      const VALID_MEMBER_ASSERT =
-        'is not a valid member of a json-api document.';
       let baseDoc = { data: { type: 'animal', id: '1', attributes: {} } };
       let fakeDoc1 = buildDoc(baseDoc, { jsonapi: undefined });
       let fakeDoc2 = buildDoc(baseDoc, { jsonapi: null });
@@ -421,16 +386,135 @@ module('Unit | Document', function(hooks) {
         () => {
           push(fakeDoc4);
         },
-        VALID_MEMBER_ASSERT,
+        `expected a 'version' member to be present in the 'document.jsonapi'`,
         'We do not throw when version is present'
       );
     });
 
-    todo('MAY contain meta', function(assert) {
-      assert.notOk('Not Implemented');
+    test('MAY contain meta', function(assert) {
+      let baseDoc = {
+        data: { type: 'animal', id: '1', attributes: {} },
+        jsonapi: { version: '1.0.0' },
+      };
+      let fakeDoc1 = buildDoc(baseDoc, { jsonapi: { meta: undefined } });
+      let fakeDoc2 = buildDoc(baseDoc, { jsonapi: { meta: null } });
+      let fakeDoc3 = buildDoc(baseDoc, { jsonapi: { meta: {} } });
+      let fakeDoc4 = buildDoc(baseDoc, {
+        jsonapi: { meta: { features: ['rfc-293'] } },
+      });
+
+      assert.throwsWith(
+        () => {
+          push(fakeDoc1);
+        },
+        `'<document>.jsonapi.meta' MUST be an object when present: found value of type undefined`,
+        'We throw when the value is explicitly undefined'
+      );
+      assert.throwsWith(
+        () => {
+          push(fakeDoc2);
+        },
+        `'<document>.jsonapi.meta' MUST be an object when present: found value of type Null`,
+        'We throw when the value is null'
+      );
+      assert.throwsWith(
+        () => {
+          push(fakeDoc3);
+        },
+        `'<document>.jsonapi.meta' MUST have at least one member: found an empty object.`,
+        'We throw when we have no keys'
+      );
+      assert.doesNotThrowWith(
+        () => {
+          push(fakeDoc4);
+        },
+        `'<document>.jsonapi.meta' MUST`,
+        'We do not throw when at least one key is present'
+      );
     });
     todo('MUST NOT contain other members', function(assert) {
       assert.notOk('Not Implemented');
+    });
+  });
+
+  module('Top-level meta', function() {
+    test('meta must be well-formed', function(assert) {
+      let baseDoc = {
+        data: { type: 'animal', id: '1', attributes: {} },
+      };
+      let fakeDoc1 = buildDoc(baseDoc, { meta: undefined });
+      let fakeDoc2 = buildDoc(baseDoc, { meta: null });
+      let fakeDoc3 = buildDoc(baseDoc, { meta: {} });
+      let fakeDoc4 = buildDoc(baseDoc, {
+        meta: { features: ['rfc-293'] },
+      });
+
+      assert.throwsWith(
+        () => {
+          push(fakeDoc1);
+        },
+        `'<document>.meta' MUST be an object when present: found value of type undefined`,
+        'We throw when the value is explicitly undefined'
+      );
+      assert.throwsWith(
+        () => {
+          push(fakeDoc2);
+        },
+        `'<document>.meta' MUST be an object when present: found value of type Null`,
+        'We throw when the value is null'
+      );
+      assert.throwsWith(
+        () => {
+          push(fakeDoc3);
+        },
+        `'<document>.meta' MUST have at least one member: found an empty object.`,
+        'We throw when we have no keys'
+      );
+      assert.doesNotThrowWith(
+        () => {
+          push(fakeDoc4);
+        },
+        `'<document>.meta' MUST`,
+        'We do not throw when at least one key is present'
+      );
+    });
+
+    test('(ember-data-quirk) a json-api document MUST have `data` or `errors` in addition to `meta`', function(assert) {
+      this.disallowMetaOnlyDocuments();
+      const META_ONLY_ASSERT =
+        "'<document>.meta' MUST NOT be the only member of '<document>. Expected `data` or `errors` as a sibling.";
+
+      assert.throwsWith(
+        () => {
+          push({ data: undefined, meta: { pages: 0 } });
+        },
+        META_ONLY_ASSERT,
+        'we throw when other available members are undefined'
+      );
+      assert.throwsWith(
+        () => {
+          push({ data: null, meta: { pages: 0 } });
+        },
+        META_ONLY_ASSERT,
+        'we throw when other available members are null'
+      );
+      assert.throwsWith(
+        () => {
+          push({ meta: { pages: 0 } });
+        },
+        META_ONLY_ASSERT,
+        'we throw for meta-only documents'
+      );
+      assert.doesNotThrowWith(
+        () => {
+          push({
+            data: { type: 'animal', id: '1', attributes: {} },
+            meta: { pages: 0 },
+          });
+        },
+        META_ONLY_ASSERT,
+        'we do not throw when other members are defined'
+      );
     });
   });
 

@@ -1,4 +1,9 @@
-import { NICE_ERROR_TYPES, ValidationError, createNiceErrorMessage, uniqueErrorId } from './validation-error';
+import {
+  NICE_ERROR_TYPES,
+  ValidationError,
+  createNiceErrorMessage,
+  uniqueErrorId,
+} from './validation-error';
 import isPlainObject from '../utils/is-plain-object';
 import aboutAnOxfordComma from '../utils/about-an-oxford-comma';
 import typeOf from '../utils/type-of';
@@ -8,7 +13,6 @@ export const DOCUMENT_ERROR_TYPES = {
   MISSING_MANDATORY_MEMBER: uniqueErrorId(),
   NULL_MANDATORY_MEMBER: uniqueErrorId(),
   DISALLOWED_DATA_MEMBER: uniqueErrorId(),
-  DISALLOWED_SOLITARY_META_MEMBER: uniqueErrorId(),
   DISALLOWED_INCLUDED_MEMBER: uniqueErrorId(),
   UNKNOWN_MEMBER: uniqueErrorId(),
   VALUE_MUST_BE_OBJECT: uniqueErrorId(),
@@ -24,7 +28,7 @@ export class DocumentError extends ValidationError {
       key: Array.isArray(value) ? '' : value,
       value: isPlainObject(document) ? JSON.stringify(document) : document,
       path,
-      code: NICE_ERROR_TYPES.OBJECT_ERROR
+      code: NICE_ERROR_TYPES.OBJECT_ERROR,
     });
     const error = buildDocumentErrorMessage(options);
     const message = error + errorLocation;
@@ -37,16 +41,19 @@ function buildDocumentErrorMessage(options) {
 
   switch (code) {
     case DOCUMENT_ERROR_TYPES.INVALID_DOCUMENT:
-      return `Value of type "${typeOf(document)}" is not a valid json-api document.`;
+      return `Value of type "${typeOf(
+        document
+      )}" is not a valid json-api document.`;
 
     case DOCUMENT_ERROR_TYPES.MISSING_MANDATORY_MEMBER:
-      return `A json-api document MUST contain one of ${aboutAnOxfordComma(value)} as a member.`;
+      return `A json-api document MUST contain one of ${aboutAnOxfordComma(
+        value
+      )} as a member.`;
 
     case DOCUMENT_ERROR_TYPES.NULL_MANDATORY_MEMBER:
-      return `A json-api document MUST contain one of ${aboutAnOxfordComma(value)} as a non-null member.`;
-
-    case DOCUMENT_ERROR_TYPES.DISALLOWED_SOLITARY_META_MEMBER:
-      return value;
+      return `A json-api document MUST contain one of ${aboutAnOxfordComma(
+        value
+      )} as a non-null member.`;
 
     case DOCUMENT_ERROR_TYPES.DISALLOWED_DATA_MEMBER:
       return 'A json-api document MUST NOT contain both `data` and `errors` as a members.';
@@ -64,14 +71,19 @@ function buildDocumentErrorMessage(options) {
       return `expected a 'version' member to be present in the 'document.jsonapi' object`;
 
     case DOCUMENT_ERROR_TYPES.VERSION_MUST_BE_STRING:
-      return `expected the 'version' member present in the 'document.jsonapi' object to be a string, found value of type ${typeOf(value)}`;
+      return `expected the 'version' member present in the 'document.jsonapi' object to be a string, found value of type ${typeOf(
+        value
+      )}`;
 
     case DOCUMENT_ERROR_TYPES.VALUE_MUST_BE_OBJECT:
-      return `expected the '${member}' member present in the json-api document to be an object, found value of type ${typeOf(value)}`;
+      return `expected the '${member}' member present in the json-api document to be an object, found value of type ${typeOf(
+        value
+      )}`;
 
     case DOCUMENT_ERROR_TYPES.INVALID_INCLUDED_VALUE:
-      return `expected document.included to be an Array, instead found value of type ${typeOf(value)}`;
-
+      return `expected document.included to be an Array, instead found value of type ${typeOf(
+        value
+      )}`;
   }
 
   return 'DocumentError';

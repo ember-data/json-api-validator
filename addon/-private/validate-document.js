@@ -1,7 +1,6 @@
 import itExists from './document-rules/it-exists';
 import itHasAtLeastOne from './document-rules/it-has-at-least-one';
 import itHasAtLeastOneNonNull from './document-rules/it-has-at-least-one-non-null';
-import itHasDataOrErrorsWithMeta from './document-rules/it-has-data-or-error-with-meta';
 import itCantHaveBoth from './document-rules/it-cant-have-both';
 import itHasNoUnknownMembers from './document-rules/it-has-no-unknown-members';
 import includedMustHaveData from './document-rules/included-must-have-data';
@@ -24,7 +23,12 @@ import includedIsValid from './document-rules/included-is-valid';
  *
  * @returns {Object} an object with arrays of `errors` and `warnings`.
  */
-export default function _validateDocument({ validator, document, issues, path = '' }) {
+export default function _validateDocument({
+  validator,
+  document,
+  issues,
+  path = '<document>',
+}) {
   issues = issues || {
     errors: [],
     warnings: [],
@@ -35,13 +39,12 @@ export default function _validateDocument({ validator, document, issues, path = 
     document,
     target: document,
     issues,
-    path
+    path,
   };
 
   if (itExists(validationContext)) {
     itHasAtLeastOne(validationContext);
     itHasAtLeastOneNonNull(validationContext);
-    itHasDataOrErrorsWithMeta(validationContext);
     itCantHaveBoth(validationContext);
     itHasNoUnknownMembers(validationContext);
     includedMustHaveData(validationContext);
