@@ -11,6 +11,17 @@ import includedIsValid from './document-rules/included-is-valid';
 import validateLinks from './validate-links';
 // import itHasValidErrors from './document-rules/it-has-valid-errors';
 
+import JSONAPIValidator from '@ember-data/json-api-validator/-private/validator';
+import { Document } from 'jsonapi-typescript';
+
+
+interface IValidateDocument {
+  validator: JSONAPIValidator;
+  document: Document;
+  issues: unknown;
+  path: string;
+}
+
 /**
  * Validate that a json-api document conforms to spec
  *
@@ -28,7 +39,7 @@ export default function _validateDocument({
   document,
   issues,
   path = '<document>',
-}) {
+}: IValidateDocument) {
   issues = issues || {
     errors: [],
     warnings: [],
