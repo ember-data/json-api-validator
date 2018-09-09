@@ -8,7 +8,7 @@ import validateJsonapiMember from './validate-jsonapi-member';
 import validateMeta from './validate-meta';
 import dataIsValid from './document-rules/data-is-valid';
 import includedIsValid from './document-rules/included-is-valid';
-// import itHasValidLinks from './document-rules/it-has-valid-links';
+import validateLinks from './validate-links';
 // import itHasValidErrors from './document-rules/it-has-valid-errors';
 
 /**
@@ -52,9 +52,8 @@ export default function _validateDocument({
     validateMeta(validationContext);
     dataIsValid(validationContext);
     includedIsValid(validationContext);
+    validateLinks(validationContext);
 
-    // TODO validate links
-    // itHasValidLinks(validationContext);
     // TODO validate errors
     // itHasValidErrors(validationContext);
   }

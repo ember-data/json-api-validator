@@ -37,7 +37,7 @@ export class DocumentError extends ValidationError {
 }
 
 function buildDocumentErrorMessage(options) {
-  let { value, code, document, member } = options;
+  let { value, code, document, member, path } = options;
 
   switch (code) {
     case DOCUMENT_ERROR_TYPES.INVALID_DOCUMENT:
@@ -76,7 +76,7 @@ function buildDocumentErrorMessage(options) {
       )}`;
 
     case DOCUMENT_ERROR_TYPES.VALUE_MUST_BE_OBJECT:
-      return `expected the '${member}' member present in the json-api document to be an object, found value of type ${typeOf(
+      return `'${path}.${member}' MUST be an object if present, found value of type ${typeOf(
         value
       )}`;
 
