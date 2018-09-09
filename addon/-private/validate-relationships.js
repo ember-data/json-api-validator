@@ -5,12 +5,14 @@ import {
 } from "./errors/relationship-error";
 
 export default function validateResourceRelationships(contextObject) {
-  let { schema,
-        relationships,
-        methodName,
-        path = "",
-        validator} = contextObject;
-    
+  let {
+    schema,
+    relationships,
+    /*methodName,*/
+    path = "",
+    validator
+  } = contextObject;
+
   if (typeof relationships !== "object" || relationships === null) {
     let error = new RelationshipError(
       RELATIONSHIP_ERROR_TYPES.INVALID_HASH,
@@ -30,7 +32,7 @@ export default function validateResourceRelationships(contextObject) {
     let key = foundRelationshipKeys[i];
     let data = relationships[key];
     errors = errors.concat(
-        validateResourceRelationship({schema, key, data, path, validator})
+      validateResourceRelationship({ schema, key, data, path, validator })
     );
   }
 
@@ -42,9 +44,9 @@ function validateResourceRelationship({
   key: propertyName,
   data,
   path,
-  validator}
-) {
-  let relationship = _findRelationship({schema, propertyName, validator});
+  validator
+}) {
+  let relationship = _findRelationship({ schema, propertyName, validator });
   let errors = [];
 
   if (relationship === undefined) {
@@ -109,7 +111,11 @@ function validateResourceRelationship({
             } else {
               data.data.forEach(ref => {
                 errors = errors.concat(
-                    validateRelationshipReference({relationship, ref, validator})
+                  validateRelationshipReference({
+                    relationship,
+                    ref,
+                    validator
+                  })
                 );
               });
             }
@@ -124,7 +130,7 @@ function validateResourceRelationship({
   return errors;
 }
 
-function validateRelationshipReference({relationship, ref, validator}) {
+function validateRelationshipReference({ relationship, ref, validator }) {
   let errors = [];
 
   if (typeof ref.id !== "string" || ref.id.length === 0) {
@@ -159,7 +165,7 @@ function validateRelationshipReference({relationship, ref, validator}) {
   return errors;
 }
 
-function _findRelationship({schema, propertyName, validator}) {
+function _findRelationship({ schema, propertyName, validator }) {
   let relTypes = ["hasMany", "belongsTo"];
 
   for (let i = 0; i < relTypes.length; i++) {
@@ -179,11 +185,11 @@ function _findRelationship({schema, propertyName, validator}) {
   }
 
   if (schema.inherits) {
-    return _findRelationship(
-        {schema: validator.schemaFor(schema.inherits),
-         propertyName,
-         validator}
-    );
+    return _findRelationship({
+      schema: validator.schemaFor(schema.inherits),
+      propertyName,
+      validator
+    });
   }
 
   return undefined;
