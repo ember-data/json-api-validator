@@ -5,10 +5,6 @@ import assertMemberFormat from './utils/assert-member-format';
 import normalizeType from './utils/normalize-type';
 import { dasherize } from '@ember/string';
 
-function _disallowOnlyMetaDocument() {
-  return 'ember-data does not enable json-api documents containing only `meta` as a member to be pushed to the store.';
-}
-
 export default class JSONAPIValidator {
   constructor(hooks) {
     /**
@@ -35,13 +31,12 @@ export default class JSONAPIValidator {
     // used to check for a schema by a slightly different name to be friendly
     this.formatFallbackType = hooks.formatFallbackType || dasherize;
 
-    // each one of these hooks should be considered an Ember Data bug
-    //  since they are only necessary due to Ember Data bugs
+    this.disallowMetaOnlyDocuments = hooks.disallowMetaOnlyDocuments || function() { return true };
+    this.disallowMetaOnlyRelationships = hooks.disallowMetaOnlyRelationships || function() { return true };
 
     /*
       Ember Data  strictly requires singularized, dasherized types
      */
-    this.disallowOnlyMetaDocument = hooks.disallowOnlyMetaDocument || _disallowOnlyMetaDocument;
     this.assertTypeFormat = hooks.assertTypeFormat || assertTypeFormat;
     this.assertMemberFormat = hooks.assertMemberFormat || assertMemberFormat;
     this.formatType = hooks.formatType || normalizeType;
