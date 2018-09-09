@@ -1,4 +1,4 @@
-export default function aboutAnOxfordComma(array, quote = '`', joinWord = 'or') {
+export default function aboutAnOxfordComma(array: string[], quote = '`', joinWord = 'or') {
   let arr = array.slice();
 
   if (arr.length === 0) {

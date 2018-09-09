@@ -1,6 +1,7 @@
 import memberDefined from '../utils/member-defined';
 import validateResource from '../validate-resource';
 
+import { IValidationContext } from 'ember-data';
 
 /**
  * TODO update the below because resource-identifiers probably can have links
@@ -33,7 +34,7 @@ import validateResource from '../validate-resource';
  * @param path
  * @returns {boolean}
  */
-export default function dataIsValid({ validator, document, issues, path }) {
+export default function dataIsValid({ validator, document, issues, path }: IValidationContext) {
   if (!memberDefined(document, 'data')) {
     return true;
   }

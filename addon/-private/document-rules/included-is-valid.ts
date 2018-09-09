@@ -2,6 +2,8 @@ import { DocumentError, DOCUMENT_ERROR_TYPES } from '../errors/document-error';
 import memberDefined from '../utils/member-defined';
 import validateResource from '../validate-resource';
 
+import { IValidationContext } from 'ember-data';
+
 /**
  * The `included` key of a json-api document MUST be an Array if present and MUST contain only
  * resource-objects (Resource).
@@ -20,7 +22,7 @@ import validateResource from '../validate-resource';
  * @param path
  * @returns {boolean}
  */
-export default function includedIsValid({ validator, document, issues, path }) {
+export default function includedIsValid({ validator, document, issues, path }: IValidationContext) {
   if (!memberDefined(document, 'included')) {
     return true;
   }

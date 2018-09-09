@@ -1,6 +1,6 @@
 import isDasherized from './is-dasherized';
 
-export default function assertMemberFormat(type, shouldDasherize = false) {
+export default function assertMemberFormat(type: string, shouldDasherize = false) {
   let errors = [];
 
   if (shouldDasherize) {

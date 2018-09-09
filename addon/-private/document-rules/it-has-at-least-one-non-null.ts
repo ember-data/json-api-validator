@@ -2,6 +2,8 @@ import { DocumentError, DOCUMENT_ERROR_TYPES } from '../errors/document-error';
 import memberDefined from '../utils/member-defined';
 import memberDefinedAndNotNull from '../utils/member-defined-and-not-null';
 
+import { IValidationContext } from 'ember-data';
+
 const AT_LEAST_ONE = ['data', 'meta', 'errors'];
 
 /**
@@ -19,7 +21,7 @@ export default function itHasAtLeastOneNonNull({
   document,
   issues,
   path,
-}) {
+}: IValidationContext) {
   let { errors } = issues;
   let nullMembers = [];
 

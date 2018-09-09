@@ -1,7 +1,7 @@
 import isDasherized from './is-dasherized';
 import isNormalizedType from './is-normalized-type';
 
-export default function assertTypeFormat(type, formatter = isNormalizedType, shouldDasherize = true) {
+export default function assertTypeFormat(type: string, formatter = isNormalizedType, shouldDasherize = true) {
   let formattedType = formatter(type);
   let errors = [];
 

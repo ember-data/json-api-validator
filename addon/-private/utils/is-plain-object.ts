@@ -1,4 +1,4 @@
-export default function isPlainObject(obj) {
+export default function isPlainObject(obj: object) {
   return typeof obj === 'object'
     && obj !== null
     && (

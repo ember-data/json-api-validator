@@ -5,12 +5,20 @@ declare namespace QUnitAssertHelpers {
         throwsWith(
             fn: TestFnThatMayThrow,
             messageContains: string,
-            assertDescription?: string): void;
+            assertDescription?: string
+        ): void;
 
         doesNotThrowWith(
             fn: TestFnThatMayThrow,
             messageContains: string,
-            assertDescription?: string): void;
+            assertDescription?: string
+        ): void;
+
+        expectWarning(
+            fn: TestFnThatMayThrow,
+            messageContains: string,
+            assertDescription?: string
+        ): void
     }
 }
 

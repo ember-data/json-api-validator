@@ -2,6 +2,8 @@ import { DocumentError, DOCUMENT_ERROR_TYPES } from '../errors/document-error';
 import memberPresent from '../utils/member-present';
 import memberDefined from '../utils/member-defined';
 
+import { IValidationContext } from 'ember-data';
+
 /**
  * Spec: http://jsonapi.org/format/#document-top-level
  *
@@ -11,7 +13,7 @@ import memberDefined from '../utils/member-defined';
  * @param path
  * @returns {boolean}
  */
-export default function includedMustHaveData({ validator, document, issues, path }) {
+export default function includedMustHaveData({ validator, document, issues, path }: IValidationContext) {
   let { errors } = issues;
 
   if (memberPresent(document, 'included') && !memberDefined(document, 'data')) {

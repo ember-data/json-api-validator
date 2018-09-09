@@ -11,6 +11,7 @@ import { run } from '@ember/runloop';
 import Ember from 'ember';
 import deepCopy from '../helpers/deep-copy';
 import deepMerge from '../helpers/deep-merge';
+import { TestContext } from 'ember-test-helpers';
 
 function buildDoc(base, extended) {
   return deepMerge({}, deepCopy(base), deepCopy(extended));
@@ -29,14 +30,31 @@ function registerModels(owner) {
   owner.register('service:store', StoreClass);
 }
 
-module('Unit | Document', function(hooks) {
-  let push;
-  let store;
-  let validator;
+interface CustomTestContext {
+  push: (data: any) => typeof Ember.run;
+  store: any;
+  validator: any;
+  disallowMetaOnlyDocuments: () => void;
+  allowMetaOnlyDocuments: () => void;
+  disallowMetaOnlyRelationships: () => void;
+  allowMetaOnlyRelationships: () => void;
+  enableStrictMode: () => void;
+  disableStrictMode: () => void;
+}
+
+type ModuleContext =
+  & NestedHooks
+  & TestContext
+  & CustomTestContext;
+
+module('Unit | Document', function(hooks: ModuleContext) {
+  let push: (data: any) => typeof Ember.run;
+  let store: any;
+  let validator: any;
 
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function(this: ModuleContext) {
     Ember.Test.adapter.exception = e => {
       throw e;
     };
@@ -75,7 +93,7 @@ module('Unit | Document', function(hooks) {
   });
 
   module('Members', function() {
-    test('a document MUST be an object', function(assert) {
+    test('a document MUST be an object', function(this: ModuleContext, assert) {
       this.allowMetaOnlyDocuments();
       const VALID_DOC_ASSERT = ' is not a valid json-api document.';
 
@@ -130,7 +148,7 @@ module('Unit | Document', function(hooks) {
       );
     });
 
-    test('a document MUST contain one of `data`, `errors`, or `meta` as a member', function(assert) {
+    test('a document MUST contain one of `data`, `errors`, or `meta` as a member', function(this: ModuleContext, assert) {
       this.allowMetaOnlyDocuments();
       const VALID_MEMBERS_ASSERT =
         'A json-api document MUST contain one of `data`, `meta` or `errors` as a member.';
@@ -151,7 +169,7 @@ module('Unit | Document', function(hooks) {
       );
     });
 
-    test('a document MUST contain one of `data`, `errors`, or `meta` as a non-null member', function(assert) {
+    test('a document MUST contain one of `data`, `errors`, or `meta` as a non-null member', function(this: ModuleContext, assert) {
       this.allowMetaOnlyDocuments();
       const VALID_MEMBERS_ASSERT =
         'A json-api document MUST contain one of `data`, `meta` or `errors` as a non-null member.';
@@ -237,7 +255,7 @@ module('Unit | Document', function(hooks) {
       );
     });
 
-    test('a document MUST NOT have the `included` member if `data` is not also present', function(assert) {
+    test('a document MUST NOT have the `included` member if `data` is not also present', function(this: ModuleContext, assert) {
       this.disallowMetaOnlyDocuments();
       this.enableStrictMode();
       const INVALID_INCLUDED_ASSERT =
@@ -267,7 +285,7 @@ module('Unit | Document', function(hooks) {
       );
     });
 
-    test('a document MUST NOT contain any non-spec members', function(assert) {
+    test('a document MUST NOT contain any non-spec members', function(this: ModuleContext, assert) {
       this.enableStrictMode();
       const VALID_MEMBER_ASSERT =
         'is not a valid member of a json-api document.';
@@ -299,7 +317,7 @@ module('Unit | Document', function(hooks) {
       );
     });
 
-    test('(loose-mode) a document SHOULD NOT contain any non-spec members', function(assert) {
+    test('(loose-mode) a document SHOULD NOT contain any non-spec members', function(this: ModuleContext, assert) {
       this.disableStrictMode();
       const VALID_MEMBER_ASSERT =
         'is not a valid member of a json-api document.';
@@ -495,7 +513,7 @@ module('Unit | Document', function(hooks) {
       );
     });
 
-    test('(ember-data-quirk) a json-api document MUST have `data` or `errors` in addition to `meta`', function(assert) {
+    test('(ember-data-quirk) a json-api document MUST have `data` or `errors` in addition to `meta`', function(this: ModuleContext, assert) {
       this.disallowMetaOnlyDocuments();
       const META_ONLY_ASSERT =
         "'<document>.meta' MUST NOT be the only member of '<document>. Expected `data` or `errors` as a sibling.";
