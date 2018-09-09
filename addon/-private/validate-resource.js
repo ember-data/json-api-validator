@@ -23,11 +23,11 @@ const _MANDATORY_SECONDARY_RESOURCE_KEYS = [
  * @param target
  * @param path
  */
-export default function validateResource(/*{ validator, document, issues, target, path }*/) {
-
+export default function validateResource(/*contextObject*/) {
   // TODO don't early return;
   return true;
 
+  // let { validator, document, issues, target, path } = contextObject;
   /*
   if (!resource) {
     errors.push(new ResourceError(RESOURCE_ERROR_TYPES.RESOURCE_MISSING, undefined, undefined, resource, path));
@@ -39,15 +39,15 @@ export default function validateResource(/*{ validator, document, issues, target
     errors.push(new ResourceError(RESOURCE_ERROR_TYPES.INVALID_RESOURCE, undefined, undefined, resource, path));
 
   } else {
-    errors = errors.concat(detectStructuralErrors(resource, methodName, path));
-    errors = errors.concat(detectTypeErrors(resource, methodName, path, validator));
+    errors = errors.concat(detectStructuralErrors(Object.assign({resource, methodName}, contextObject)));
+    errors = errors.concat(detectTypeErrors(Object.assign({resource, methodName}, contextObject)));
   }
-
   */
 }
 
 /*
-function detectStructuralErrors(payload, methodName, path) {
+function detectStructuralErrors(contextObject) {
+  let {resource: payload, methodName, path} = contextObject;
   let resourceKeys = Object.keys(payload);
   let errors = [];
 
@@ -84,7 +84,8 @@ function detectStructuralErrors(payload, methodName, path) {
   return errors;
 }
 
-function detectTypeErrors(resource, methodName, path, validator) {
+function detectTypeErrors(contextObject) {
+  let {resource, methodName, path, validator} = contextObject;
   let schema;
   let errors = [];
 
@@ -107,10 +108,10 @@ function detectTypeErrors(resource, methodName, path, validator) {
       errors.push(new ResourceError(RESOURCE_ERROR_TYPES.UNKNOWN_SCHEMA, resource.type, 'type', resource.type, path));
     } else {
       if (resource.hasOwnProperty('attributes')) {
-        errors = errors.concat(validateResourceAttributes(schema, resource.attributes, methodName, path, validator));
+        errors = errors.concat(validateResourceAttributes(Object.assign({schema, resource.attributes}, contextObject)}));
       }
       if (resource.hasOwnProperty('relationships')) {
-        errors = errors.concat(validateResourceRelationships(schema, resource.relationships, methodName, path, validator));
+        errors = errors.concat(validateResourceRelationships(Object.assign({schema, resource.relationships}, contextObject)));
       }
     }
   }
