@@ -1,4 +1,4 @@
-import { module, test, todo } from 'qunit';
+import { module, test, skip as todo } from 'qunit';
 import { setupTest } from 'ember-qunit';
 import Store from 'ember-data/store';
 import PersonModel from 'dummy/models/person';

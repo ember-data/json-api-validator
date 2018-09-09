@@ -1,4 +1,4 @@
-import memberPresent from '../utils/member-present';
+import memberPresent from "../utils/member-present";
 
 /**
  * MUST be an array of error-objects
@@ -11,8 +11,8 @@ import memberPresent from '../utils/member-present';
  * @param path
  * @returns {boolean}
  */
-export default function validateErrors({ validator, document, errors, path }) {
-  if (memberPresent(document, 'errors')) {
+export default function validateErrors({ /*validator,*/ document, /*errors,*//*path*/ }) {
+  if (memberPresent(document, "errors")) {
     return !Array.isArray(document.errors);
   }
 
