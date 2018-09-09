@@ -702,10 +702,55 @@ module('Unit | Document', function(hooks) {
       }
     );
 
-    todo(
+    test(
       'included pagination links MUST either be null, string URLs or an object with members `href` (a string URL) and an optional `meta` object',
       function(assert) {
-        assert.notOk('Not Implemented');
+        let fakeDoc = { data: { type: 'animal', id: '1', attributes: {} } };
+        let linksPagination1 = buildDoc(fakeDoc, { links: { first: null, prev: null, next: null, last: null} });
+        let linksPagination2 = buildDoc(fakeDoc, { links: { first: 'http://example.com/articles?page[number]=1&page[size]=1' , prev: null, next: 'http://example.com/articles?page[number]=4&page[size]=1', last: null} });
+        let linksPagination3 = buildDoc(fakeDoc, { links: { first: 'http://example.com/articles?page[number]=1&page[size]=1' , prev: null, next: '[http://example.com/articles?page[number]=4&page[size]=1]', last: null} });
+        let linksPagination4 = buildDoc(fakeDoc, { links: { first: 'http://example.com/articles?page[number]=1&page[size]=1' , prev: 'http://example.com/articles?page[number]=2&page[size]=1', last: 'http://example.com/articles?page[number]=13&page[size]=1'} });
+        let linksPagination5 = buildDoc(fakeDoc, { links: { first: 'http://example.com/articles?page[number]=1&page[size]=1' , prev: 'http://example.com/articles?page[number]=2&page[size]=1', next: 'http://example.com/articles?page[number]=4&page[size]=1', last: 'http://example.com/articles?page[number]=13&page[size]=1'} });
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksPagination1);
+          },
+          `'<document>.links' included pagination MUST be null, string URL or an object`,
+          'we do not throw for pagination links as null'
+        );
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksPagination2);
+          },
+          `'<document>.links' included pagination MUST be null, string URL or an object`,
+          'we do not throw for some pagination links as null'
+        );
+
+        assert.throwsWith(
+          () => {
+            push(linksPagination3);
+          },
+          `'<document>.links' included pagination MUST be null, string URL or an object`,
+          'we do throw for some pagination links as array'
+        );
+
+        assert.throwsWith(
+          () => {
+            push(linksPagination4);
+          },
+          `'<document>.links' included pagination MUST be null, string URL or an object`,
+          'we do throw for missing pagination links'
+        );
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksPagination5);
+          },
+          `'<document>.links' included pagination MUST be null, string URL or an object`,
+          'we do not throw for pagination links with string URLs'
+        );
       }
     );
 
