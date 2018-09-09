@@ -520,12 +520,18 @@ module('Unit | Document', function(hooks) {
 
   module('Top-level Links', function() {
     test('links MUST be an object if present', function(assert) {
-      const VALID_MEMBER_ASSERT = ''
+      const VALID_MEMBER_ASSERT = 'some actual error';
+
       let fakeDoc = { data: { type: 'animal', id: '1', attributes: {} } };
       let linksDoc1 = buildDoc(fakeDoc, { links: [] });
-      let linksDoc2 = buildDoc(fakeDoc, { links: {}});
-      let linksDoc3 = buildDoc(fakeDoc, { links: null });
-
+      let linksDoc2 = buildDoc(fakeDoc, { links: null });
+      let linksDoc3 = buildDoc(fakeDoc, { links: undefined });
+      let linksDoc4 = buildDoc(fakeDoc, { links: {} });
+      let linksDoc5 = buildDoc(fakeDoc, {
+        links: {
+          self: 'https://api.example.com/animal/1',
+        },
+      });
 
       assert.throwsWith(
         () => {
@@ -540,7 +546,7 @@ module('Unit | Document', function(hooks) {
           push(linksDoc2);
         },
         VALID_MEMBER_ASSERT,
-        'we do not throw for links as object'
+        'we throw for links as null'
       );
 
       assert.throwsWith(
@@ -548,7 +554,23 @@ module('Unit | Document', function(hooks) {
           push(linksDoc3);
         },
         VALID_MEMBER_ASSERT,
-        'we throw for links as null'
+        'we throw for links as undefined'
+      );
+
+      assert.throwsWith(
+        () => {
+          push(linksDoc4);
+        },
+        VALID_MEMBER_ASSERT,
+        'we throw for links as an empty object'
+      );
+
+      assert.doesNotThrowWith(
+        () => {
+          push(linksDoc5);
+        },
+        VALID_MEMBER_ASSERT,
+        'we do not throw for links that have a valid member'
       );
     });
 
