@@ -1,7 +1,6 @@
 import { DocumentError, DOCUMENT_ERROR_TYPES } from './errors/document-error';
 import validateMeta from './validate-meta';
 import memberPresent from './utils/member-present';
-import memberDefined from './utils/member-defined';
 import memberDefinedAndNotNull from './utils/member-defined-and-not-null';
 
 /**
@@ -40,7 +39,7 @@ export default function validateJsonapiMember({
         The spec allows this to be empty, but we are more strict. If the jsonapi
         property is defined we expect it to have information.
        */
-      if (keys.length === 0 || !memberDefined(document.jsonapi, 'version')) {
+      if (keys.length === 0 || !memberPresent(document.jsonapi, 'version')) {
         errors.push(
           new DocumentError({
             code: DOCUMENT_ERROR_TYPES.MISSING_VERSION,

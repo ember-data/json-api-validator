@@ -1,4 +1,4 @@
-import { DocumentError, DOCUMENT_ERROR_TYPES} from './errors/document-error';
+import { LinksError, LINKS_ERROR_TYPES} from './errors/links-error';
 import memberPresent from './utils/member-present';
 import isPlainObject from './utils/is-plain-object';
 
@@ -31,12 +31,12 @@ import isPlainObject from './utils/is-plain-object';
  * @returns {boolean}
  */
 export default function validateLinks({ document, validator, target, issues, path }) {
+  let { errors } = issues;
+
   if (memberPresent(target, 'links')) {
     if (!isPlainObject(target.links)) {
-
-      // TODO a unique `links errors` class
-      issues.errors.push(new DocumentError({
-        code: DOCUMENT_ERROR_TYPES.VALUE_MUST_BE_OBJECT,
+      errors.push(new LinksError({
+        code: LINKS_ERROR_TYPES.VALUE_MUST_BE_OBJECT,
         value: target.links,
         member: 'links',
         target,
@@ -44,6 +44,20 @@ export default function validateLinks({ document, validator, target, issues, pat
         document,
         path
       }));
+
+      return false;
+    } else if (Object.keys(target.links).length === 0) {
+      errors.push(
+        new LinksError({
+          code: LINKS_ERROR_TYPES.OBJECT_MUST_NOT_BE_EMPTY,
+          value: target.links,
+          member: 'links',
+          target,
+          validator,
+          document,
+          path
+        })
+      );
 
       return false;
     }

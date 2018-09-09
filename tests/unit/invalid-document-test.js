@@ -198,11 +198,11 @@ module('Unit | Document', function(hooks) {
     test('a document MAY contain `jsonapi` `links` and `included` as members ', function(assert) {
       const VALID_MEMBER_ASSERT = '';
       let fakeDoc = { data: { type: 'animal', id: '1', attributes: {} } };
-      let linksDoc = buildDoc(fakeDoc, { links: {} });
+      let linksDoc = buildDoc(fakeDoc, { links: { self: 'http://api.example.com/animal/1' } });
       let jsonApiDoc = buildDoc(fakeDoc, { jsonapi: { version: '1.0' } });
       let includedDoc = buildDoc(fakeDoc, { included: [] });
       let allDoc = buildDoc(fakeDoc, {
-        links: {},
+        links: { self: 'http://api.example.com/animal/1' },
         jsonapi: { version: '1.0' },
         included: [],
       });
@@ -359,20 +359,22 @@ module('Unit | Document', function(hooks) {
       let fakeDoc1 = buildDoc(baseDoc, { jsonapi: undefined });
       let fakeDoc2 = buildDoc(baseDoc, { jsonapi: null });
       let fakeDoc3 = buildDoc(baseDoc, { jsonapi: {} });
-      let fakeDoc4 = buildDoc(baseDoc, { jsonapi: { version: '1.0.0' } });
+      let fakeDoc4 = buildDoc(baseDoc, { jsonapi: { version: undefined } });
+      let fakeDoc5 = buildDoc(baseDoc, { jsonapi: { version: null } });
+      let fakeDoc6 = buildDoc(baseDoc, { jsonapi: { version: '1.0.0' } });
 
       assert.throwsWith(
         () => {
           push(fakeDoc1);
         },
-        `expected the 'jsonapi' member present in the json-api document to be an object, found value of type undefined`,
+        `'<document>.jsonapi' MUST be an object if present, found value of type undefined`,
         'We throw when the value is explicitly undefined'
       );
       assert.throwsWith(
         () => {
           push(fakeDoc2);
         },
-        `expected the 'jsonapi' member present in the json-api document to be an object, found value of type Null`,
+        `'<document>.jsonapi' MUST be an object if present, found value of type Null`,
         'We throw when the value is null'
       );
       assert.throwsWith(
@@ -382,9 +384,23 @@ module('Unit | Document', function(hooks) {
         `expected a 'version' member to be present in the 'document.jsonapi' object`,
         'We throw when missing version'
       );
-      assert.doesNotThrowWith(
+      assert.throwsWith(
         () => {
           push(fakeDoc4);
+        },
+        `expected the 'version' member present in the 'document.jsonapi' object to be a string, found value of type undefined`,
+        'We throw when missing version'
+      );
+      assert.throwsWith(
+        () => {
+          push(fakeDoc5);
+        },
+        `expected the 'version' member present in the 'document.jsonapi' object to be a string, found value of type Null`,
+        'We throw when missing version'
+      );
+      assert.doesNotThrowWith(
+        () => {
+          push(fakeDoc6);
         },
         `expected a 'version' member to be present in the 'document.jsonapi'`,
         'We do not throw when version is present'
@@ -520,8 +536,6 @@ module('Unit | Document', function(hooks) {
 
   module('Top-level Links', function() {
     test('links MUST be an object if present', function(assert) {
-      const VALID_MEMBER_ASSERT = 'some actual error';
-
       let fakeDoc = { data: { type: 'animal', id: '1', attributes: {} } };
       let linksDoc1 = buildDoc(fakeDoc, { links: [] });
       let linksDoc2 = buildDoc(fakeDoc, { links: null });
@@ -537,15 +551,15 @@ module('Unit | Document', function(hooks) {
         () => {
           push(linksDoc1);
         },
-        VALID_MEMBER_ASSERT,
+        `'<document>.links' MUST be an object when present: found value of type Array`,
         'we throw for links as array'
       );
 
-      assert.doesNotThrowWith(
+      assert.throwsWith(
         () => {
           push(linksDoc2);
         },
-        VALID_MEMBER_ASSERT,
+        `'<document>.links' MUST be an object when present: found value of type Null`,
         'we throw for links as null'
       );
 
@@ -553,7 +567,7 @@ module('Unit | Document', function(hooks) {
         () => {
           push(linksDoc3);
         },
-        VALID_MEMBER_ASSERT,
+        `'<document>.links' MUST be an object when present: found value of type undefined`,
         'we throw for links as undefined'
       );
 
@@ -561,7 +575,7 @@ module('Unit | Document', function(hooks) {
         () => {
           push(linksDoc4);
         },
-        VALID_MEMBER_ASSERT,
+        `'<document>.links' MUST have at least one member: found an empty object.`,
         'we throw for links as an empty object'
       );
 
@@ -569,7 +583,7 @@ module('Unit | Document', function(hooks) {
         () => {
           push(linksDoc5);
         },
-        VALID_MEMBER_ASSERT,
+        `'<document>.links' MUST have at least one member: found an empty object.`,
         'we do not throw for links that have a valid member'
       );
     });
