@@ -1,9 +1,10 @@
-import DS from 'ember-data';
+import DS, { ISchema } from 'ember-data';
 import Validator from './-private/validator';
+import { Document } from 'jsonapi-typescript';
 
 const { Store } = DS;
 
-export default function setupEmberDataValidations(_Store = Store) {
+export default function setupEmberDataValidations(_Store = Store as any) {
   _Store.reopen({
     init() {
       this._super();
@@ -29,7 +30,7 @@ export default function setupEmberDataValidations(_Store = Store) {
             return undefined;
           }
 
-          const schema = {
+          const schema: ISchema = {
 
           };
           modelClass.eachRelationship((name, meta) => {
@@ -50,11 +51,11 @@ export default function setupEmberDataValidations(_Store = Store) {
       });
     },
 
-    validateJsonApiDocument(jsonApiDocument) {
+    validateJsonApiDocument(jsonApiDocument: Document) {
       this.__validator.validateDocument(jsonApiDocument);
     },
 
-    _push(jsonApiDocument) {
+    _push(jsonApiDocument: Document) {
       this.validateJsonApiDocument(jsonApiDocument);
       return this._super(jsonApiDocument);
     }

@@ -6,29 +6,32 @@ import normalizeType from './utils/normalize-type';
 import { dasherize } from '@ember/string';
 
 import { Document } from 'jsonapi-typescript';
+import { ISchema } from 'ember-data';
+
+
 
 export interface IJSONAPIValidatorOptions {
-  strictMode: boolean;
-  schemaFor: unknown;
-  schemaImplements: unknown;
-  formatFallbackType: (value: string) => string;
-  disallowMetaOnlyDocuments: () => boolean;
-  disallowMetaOnlyRelationships: () => boolean;
-  assertTypeFormat: unknown;
-  assertMemberFormat: unknown;
-  formatType: unknown;
+  strictMode?: boolean;
+  schemaFor: (type: string) => ISchema | undefined;
+  schemaImplements: (subclassType: string, type: string) => boolean;
+  formatFallbackType?: (value: string) => string;
+  disallowMetaOnlyDocuments?: () => boolean;
+  disallowMetaOnlyRelationships?: () => boolean;
+  assertTypeFormat?: unknown;
+  assertMemberFormat?: unknown;
+  formatType?: unknown;
 }
 
 export default class JSONAPIValidator implements IJSONAPIValidatorOptions {
-  strictMode: boolean;
-  schemaFor: unknown;
-  schemaImplements: unknown;
-  formatFallbackType: (value: string) => string;
-  disallowMetaOnlyDocuments: () => boolean;
-  disallowMetaOnlyRelationships: () => boolean;
-  assertTypeFormat: unknown;
-  assertMemberFormat: unknown;
-  formatType: unknown;
+  strictMode?: boolean | undefined;
+  schemaFor: (type: string) => ISchema | undefined;
+  schemaImplements: (subclassType: string, type: string) => boolean;
+  formatFallbackType?: ((value: string) => string) | undefined;
+  disallowMetaOnlyDocuments?: (() => boolean) | undefined;
+  disallowMetaOnlyRelationships?: (() => boolean) | undefined;
+  assertTypeFormat?: unknown;
+  assertMemberFormat?: unknown;
+  formatType?: unknown;
 
   constructor(hooks: IJSONAPIValidatorOptions) {
     /**

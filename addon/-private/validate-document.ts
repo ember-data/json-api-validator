@@ -18,8 +18,8 @@ import { Document } from 'jsonapi-typescript';
 interface IValidateDocument {
   validator: JSONAPIValidator;
   document: Document;
-  issues: unknown;
-  path: string;
+  issues?: unknown;
+  path?: string;
 }
 
 /**
