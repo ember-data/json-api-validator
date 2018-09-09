@@ -754,10 +754,28 @@ module('Unit | Document', function(hooks) {
       }
     );
 
-    todo('(strict-mode) links MAY NOT contain any non-spec members', function(
+    test('(strict-mode) links MAY NOT contain any non-spec members', function(
       assert
     ) {
-      assert.notOk('Not Implemented');
+      let fakeDoc = { data: { type: 'animal', id: '1', attributes: {} } };
+      let links1 = buildDoc(fakeDoc, { links: { first: null, prev: null, next: null, last: null, custom: 'http://example.com/articles?page[number]=1&page[size]=1'} });
+      let links2 = buildDoc(fakeDoc, { links: { self_admin: 'http://example.com/articles?page[number]=1&page[size]=1', self: 'http://example.com/articles?page[number]=1&page[size]=1'} });
+
+      assert.throwsWith(
+        () => {
+          push(links1);
+        },
+        `'<document>.links' MAY NOT contain any non-spec members`,
+        'we do throw for non-spec member'
+      );
+
+      assert.throwsWith(
+        () => {
+          push(links2);
+        },
+        `'<document>.links' MAY NOT contain any non-spec members`,
+        'we do throw for non-spec member'
+      );
     });
 
     todo('a document MUST ', function(assert) {
