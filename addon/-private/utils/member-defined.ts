@@ -1,5 +1,7 @@
 import memberPresent from './member-present';
 
-export default function memberDefined(obj: object, member: string) {
+import { IObject } from 'ember-data';
+
+export default function memberDefined(obj: IObject, member: string) {
   return memberPresent(obj, member) && obj[member] !== undefined;
 }

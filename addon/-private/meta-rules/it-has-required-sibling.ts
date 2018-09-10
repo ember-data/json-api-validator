@@ -2,6 +2,9 @@ import { MetaError, META_ERROR_TYPES } from '../errors/meta-error';
 import memberPresent from '../utils/member-present';
 import memberDefinedAndNotNull from '../utils/member-defined-and-not-null';
 
+import { IValidationContext } from 'ember-data';
+import { DocWithMeta } from 'jsonapi-typescript';
+
 /**
  * Validates that a document has data or errors in addition to meta
  *
@@ -20,7 +23,7 @@ export default function itHasRequiredSibling({
   requiredSiblings,
   issues,
   path,
-}) {
+}: IValidationContext) {
   let { errors } = issues;
 
   if (!memberPresent(target, 'meta')) {
@@ -40,7 +43,7 @@ export default function itHasRequiredSibling({
     member: 'meta',
     code: META_ERROR_TYPES.DISALLOWED_SOLITARY_META_MEMBER,
     validator,
-    value: target.meta,
+    value: (target as DocWithMeta).meta,
     expectedValue: requiredSiblings
   });
 

@@ -38,8 +38,13 @@ declare module 'ember-data' {
   interface IValidationContext {
     validator: JSONAPIValidator;
     document: Document | null | Date;
-    target: Document | unknown;
+    target: Document;
     issues: IIssues;
     path: string;
+    requiredSiblings?: any
+  }
+
+  interface IObject {
+    [member: string]: any
   }
 }
