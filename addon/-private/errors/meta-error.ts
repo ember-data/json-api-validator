@@ -7,6 +7,9 @@ import {
 import aboutAnOxfordComma from '../utils/about-an-oxford-comma';
 import isPlainObject from '../utils/is-plain-object';
 import typeOf from '../utils/type-of';
+import { Document } from 'jsonapi-typescript';
+import JSONAPIValidator from '@ember-data/json-api-validator/-private/validator';
+import { IErrorOptions } from 'ember-data';
 
 export const META_ERROR_TYPES = {
   DISALLOWED_SOLITARY_META_MEMBER: uniqueErrorId(),
@@ -16,7 +19,7 @@ export const META_ERROR_TYPES = {
 };
 
 export class MetaError extends ValidationError {
-  constructor(options) {
+  constructor(options: IErrorOptions) {
     let { value, path, document } = options;
     const errorLocation = createNiceErrorMessage({
       key: Array.isArray(value) ? '' : value,

@@ -37,7 +37,7 @@ export class ReferenceError extends ValidationError {
   }
 }
 
-function buildPrimaryResourceErrorMessage(errorType, type, propertyName, value) {
+function buildPrimaryResourceErrorMessage(errorType: number, type: string, propertyName: string, value: Value) {
   switch (errorType) {
     case REFERENCE_ERROR_TYPES.REFERENCE_MISSING:
       return `Expected to receive a json-api reference${propertyName ? ' at ' + propertyName : ''} but instead found '${value}'.`;
@@ -66,5 +66,8 @@ function buildPrimaryResourceErrorMessage(errorType, type, propertyName, value) 
 
     case REFERENCE_ERROR_TYPES.UNKNOWN_SCHEMA:
       return `Unknown reference, no schema was found for type '${value}'`;
+
+    default:
+      return `An unclassified error occurred while validating the relationship '${propertyName}' for a resource of type '${type}'`;
   }
 }

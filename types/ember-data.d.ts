@@ -15,11 +15,11 @@ declare module 'ember-data' {
     schema: string;
   }
 
-  interface ISchemaAttributes { 
+  interface ISchemaAttributes {
     attr?: string[];
   }
-  
-  type ISchema = 
+
+  type ISchema =
     & { [kind: string]: Array<ISchemaEntry>; }
     & ISchemaAttributes;
 
@@ -28,6 +28,9 @@ declare module 'ember-data' {
     value: string;
     path: string;
     code: number;
+    member?: string;
+    document?: Document;
+    validator?: JSONAPIValidator;
   }
 
   interface IIssues {

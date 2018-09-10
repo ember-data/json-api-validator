@@ -66,7 +66,8 @@ function buildPrimaryResourceErrorMessage(errorType: number, type: string, prope
 
     case RESOURCE_ERROR_TYPES.UNKNOWN_SCHEMA:
       return `Unknown resource, no schema was found for type '${value}'`;
+
     default:
-      return `Unknown errorType: ${errorType}. type: ${type}, propertName: ${propertyName}, value: ${value}`;
+      return `An unclassified error occurred while validating the relationship '${propertyName}' for a resource of type '${type}'`;
   }
 }
