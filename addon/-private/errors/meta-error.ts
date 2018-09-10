@@ -7,8 +7,6 @@ import {
 import aboutAnOxfordComma from '../utils/about-an-oxford-comma';
 import isPlainObject from '../utils/is-plain-object';
 import typeOf from '../utils/type-of';
-import { Document } from 'jsonapi-typescript';
-import JSONAPIValidator from '@ember-data/json-api-validator/-private/validator';
 import { IErrorOptions } from 'ember-data';
 
 export const META_ERROR_TYPES = {
