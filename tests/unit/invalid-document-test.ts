@@ -13,15 +13,15 @@ import deepCopy from '../helpers/deep-copy';
 import deepMerge from '../helpers/deep-merge';
 import { TestContext } from 'ember-test-helpers';
 
-function buildDoc(base, extended) {
+function buildDoc(base: any, extended: any) {
   return deepMerge({}, deepCopy(base), deepCopy(extended));
 }
 
-let StoreClass = Store.extend({});
+let StoreClass = (Store as any).extend({});
 
 setupEmberDataValidations(StoreClass);
 
-function registerModels(owner) {
+function registerModels(owner: any) {
   owner.register('model:person', PersonModel);
   owner.register('model:animal', AnimalModel);
   owner.register('model:pet', PetModel);
@@ -31,7 +31,7 @@ function registerModels(owner) {
 }
 
 interface CustomTestContext {
-  push: (data: any) => typeof Ember.run;
+  push: (data?: any) => typeof Ember.run;
   store: any;
   validator: any;
   disallowMetaOnlyDocuments: () => void;
@@ -48,7 +48,7 @@ type ModuleContext =
   & CustomTestContext;
 
 module('Unit | Document', function(hooks: ModuleContext) {
-  let push: (data: any) => typeof Ember.run;
+  let push: (data?: any) => typeof Ember.run;
   let store: any;
   let validator: any;
 

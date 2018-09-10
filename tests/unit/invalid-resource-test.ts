@@ -10,8 +10,10 @@ import setupEmberDataValidations from '@ember-data/json-api-validator/setup-embe
 import { run } from '@ember/runloop';
 import deepCopy from '../helpers/deep-copy';
 import deepMerge from '../helpers/deep-merge';
+import { TestContext } from 'ember-test-helpers';
+import Ember from 'ember';
 
-function buildDoc(base, extended) {
+function buildDoc(base: any, extended: any) {
   return deepMerge({}, deepCopy(base), deepCopy(extended));
 }
 
@@ -19,7 +21,7 @@ let StoreClass = Store.extend({});
 
 setupEmberDataValidations(StoreClass);
 
-function registerModels(owner) {
+function registerModels(owner: any) {
   owner.register('model:person', PersonModel);
   owner.register('model:animal', AnimalModel);
   owner.register('model:pet', PetModel);
@@ -28,13 +30,24 @@ function registerModels(owner) {
   owner.register('service:store', StoreClass);
 }
 
-module('Unit | Resource', function(hooks) {
-  let push;
-  let store;
+interface CustomTestContext {
+  push: (data: any) => typeof Ember.run;
+  store: any;
+}
+
+type ModuleContext =
+  & NestedHooks
+  & TestContext
+  & CustomTestContext;
+
+
+module('Unit | Resource', function(hooks: ModuleContext) {
+  let push: (data: any) => typeof Ember.run;
+  let store: any;
 
   setupTest(hooks);
 
-  hooks.beforeEach(function(assert) {
+  hooks.beforeEach(function(this: ModuleContext, assert) {
     store = this.owner.lookup('service:store');
     push = function push(data) {
       return run(() => {
