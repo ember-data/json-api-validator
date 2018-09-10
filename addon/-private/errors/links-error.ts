@@ -7,6 +7,9 @@ import {
 import isPlainObject from '../utils/is-plain-object';
 import typeOf from '../utils/type-of';
 
+import * as JSON from 'json-typescript';
+import { Document } from 'jsonapi-typescript';
+
 export const LINKS_ERROR_TYPES = {
   UNKNOWN_MEMBER: uniqueErrorId(),
   INVALID_MEMBER: uniqueErrorId(),
@@ -14,8 +17,16 @@ export const LINKS_ERROR_TYPES = {
   OBJECT_MUST_NOT_BE_EMPTY: uniqueErrorId(),
 };
 
+export interface ILinksErrorOptions {
+  value: JSON.Value;
+  path: string;
+  document: Document;
+  code: string | number;
+  member: any;
+}
+
 export class LinksError extends ValidationError {
-  constructor(options) {
+  constructor(options: ILinksErrorOptions) {
     let { value, path, document } = options;
     const errorLocation = createNiceErrorMessage({
       key: Array.isArray(value) ? '' : value,
@@ -29,7 +40,7 @@ export class LinksError extends ValidationError {
   }
 }
 
-function buildMetaErrorMessage(options) {
+function buildMetaErrorMessage(options: ILinksErrorOptions) {
   let { value, code, member, path } = options;
 
   switch (code) {

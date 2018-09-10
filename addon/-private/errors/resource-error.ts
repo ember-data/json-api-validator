@@ -1,5 +1,7 @@
 import { ValidationError, createNiceErrorMessage, uniqueErrorId } from './validation-error';
 
+import * as JSON from 'json-typescript';
+
 export const RESOURCE_ERROR_TYPES = {
   RESOURCE_MISSING: uniqueErrorId(),
   RESOURCE_IS_ARRAY: uniqueErrorId(),
@@ -14,7 +16,7 @@ export const RESOURCE_ERROR_TYPES = {
 };
 
 export class ResourceError extends ValidationError {
-  constructor(errorType, type, propertyName, value, path) {
+  constructor(errorType: number, type: string, propertyName: string, value: JSON.Value, path: string) {
     let errorLocation = '';
 
     if (
@@ -35,7 +37,7 @@ export class ResourceError extends ValidationError {
   }
 }
 
-function buildPrimaryResourceErrorMessage(errorType, type, propertyName, value) {
+function buildPrimaryResourceErrorMessage(errorType: number, type: string, propertyName: string, value: JSON.Value) {
   switch (errorType) {
     case RESOURCE_ERROR_TYPES.RESOURCE_MISSING:
       return `Expected to receive a json-api resource${propertyName ? ' at ' + propertyName : ''} but instead found '${value}'.`;
@@ -64,5 +66,7 @@ function buildPrimaryResourceErrorMessage(errorType, type, propertyName, value) 
 
     case RESOURCE_ERROR_TYPES.UNKNOWN_SCHEMA:
       return `Unknown resource, no schema was found for type '${value}'`;
+    default:
+      return `Unknown errorType: ${errorType}. type: ${type}, propertName: ${propertyName}, value: ${value}`;
   }
 }
