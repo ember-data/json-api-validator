@@ -4098,7 +4098,7 @@ json-stable-stringify@^1.0.0, json-stable-stringify@^1.0.1:
   dependencies:
     jsonify "~0.0.0"
 
-json-typescript@^1.0.0:
+json-typescript@^1.0.0, json-typescript@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/json-typescript/-/json-typescript-1.0.1.tgz#9d71a17627a20a61dbbf504e33561030f4eefd7f"
 
