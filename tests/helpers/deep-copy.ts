@@ -1,15 +1,15 @@
 /* global WeakMap */
-export default function deepCopy(obj) {
+export default function deepCopy(obj: object) {
   return _deepCopy(obj, new WeakMap());
 }
 
-function isPrimitive(value) {
+function isPrimitive(value: any) {
   return typeof value !== 'object' || value === null;
 }
 
-function _deepCopy(oldObject, seen) {
+function _deepCopy<T>(oldObject: T, seen: WeakMap<any, any>): T {
   if (Array.isArray(oldObject)) {
-    return copyArray(oldObject, seen);
+    return copyArray<any>(oldObject, seen) as any;
   } else if (!isPrimitive(oldObject)) {
     return copyObject(oldObject, seen);
   } else {
@@ -17,8 +17,8 @@ function _deepCopy(oldObject, seen) {
   }
 }
 
-function copyObject(oldObject, seen) {
-  let newObject = {};
+function copyObject<T extends any>(oldObject: T, seen: WeakMap<any, any>): T {
+  let newObject: any = {};
 
   Object.keys(oldObject).forEach(key => {
     let value = oldObject[key];
@@ -35,7 +35,7 @@ function copyObject(oldObject, seen) {
   return newObject;
 }
 
-function copyArray(oldArray, seen) {
+function copyArray<T>(oldArray: Array<T>, seen: WeakMap<any, any>): Array<T> {
   let newArray = [];
 
   for (let i = 0; i < oldArray.length; i++) {
