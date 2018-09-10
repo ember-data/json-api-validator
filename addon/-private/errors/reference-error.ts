@@ -1,6 +1,6 @@
 import { ValidationError, createNiceErrorMessage, uniqueErrorId } from './validation-error';
 
-import * as JSON from 'json-typescript';
+import { Value } from 'json-typescript';
 
 export const REFERENCE_ERROR_TYPES = {
   REFERENCE_MISSING: uniqueErrorId(),
@@ -16,7 +16,7 @@ export const REFERENCE_ERROR_TYPES = {
 };
 
 export class ReferenceError extends ValidationError {
-  constructor(errorType: number, type: string, propertyName: string, value: JSON.Value, path: string) {
+  constructor(errorType: number, type: string, propertyName: string, value: Value, path: string) {
     let errorLocation = '';
 
     if (

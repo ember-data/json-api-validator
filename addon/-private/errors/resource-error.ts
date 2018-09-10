@@ -1,6 +1,6 @@
 import { ValidationError, createNiceErrorMessage, uniqueErrorId } from './validation-error';
 
-import * as JSON from 'json-typescript';
+import { Value } from 'json-typescript';
 
 export const RESOURCE_ERROR_TYPES = {
   RESOURCE_MISSING: uniqueErrorId(),
@@ -16,7 +16,7 @@ export const RESOURCE_ERROR_TYPES = {
 };
 
 export class ResourceError extends ValidationError {
-  constructor(errorType: number, type: string, propertyName: string, value: JSON.Value, path: string) {
+  constructor(errorType: number, type: string, propertyName: string, value: Value, path: string) {
     let errorLocation = '';
 
     if (
@@ -37,7 +37,7 @@ export class ResourceError extends ValidationError {
   }
 }
 
-function buildPrimaryResourceErrorMessage(errorType: number, type: string, propertyName: string, value: JSON.Value) {
+function buildPrimaryResourceErrorMessage(errorType: number, type: string, propertyName: string, value: Value) {
   switch (errorType) {
     case RESOURCE_ERROR_TYPES.RESOURCE_MISSING:
       return `Expected to receive a json-api resource${propertyName ? ' at ' + propertyName : ''} but instead found '${value}'.`;

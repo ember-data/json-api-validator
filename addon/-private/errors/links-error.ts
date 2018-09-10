@@ -7,7 +7,7 @@ import {
 import isPlainObject from '../utils/is-plain-object';
 import typeOf from '../utils/type-of';
 
-import * as JSON from 'json-typescript';
+import { Value } from 'json-typescript';
 import { Document } from 'jsonapi-typescript';
 
 export const LINKS_ERROR_TYPES = {
@@ -18,7 +18,7 @@ export const LINKS_ERROR_TYPES = {
 };
 
 export interface ILinksErrorOptions {
-  value: JSON.Value;
+  value: Value;
   path: string;
   document: Document;
   code: string | number;

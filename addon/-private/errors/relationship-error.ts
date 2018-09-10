@@ -1,6 +1,6 @@
 import { ValidationError, createNiceErrorMessage, uniqueErrorId } from './validation-error';
 
-import * as JSON from 'json-typescript';
+import { Value } from 'json-typescript';
 
 export const RELATIONSHIP_ERROR_TYPES = {
   INVALID_HASH: uniqueErrorId(),
@@ -11,7 +11,7 @@ export const RELATIONSHIP_ERROR_TYPES = {
 };
 
 export class RelationshipError extends ValidationError {
-  constructor(errorType: number, type: string, propertyName: string, value: JSON.Value, path: string) {
+  constructor(errorType: number, type: string, propertyName: string, value: Value, path: string) {
     const errorLocation = createNiceErrorMessage(
       propertyName,
       value,
@@ -24,7 +24,7 @@ export class RelationshipError extends ValidationError {
   }
 }
 
-function buildPrimaryRelationshipErrorMessage(errorType: number, type: string, propertyName: string, value: JSON.Value) {
+function buildPrimaryRelationshipErrorMessage(errorType: number, type: string, propertyName: string, value: Value) {
   switch (errorType) {
     case RELATIONSHIP_ERROR_TYPES.INVALID_HASH:
       return `Expected the relationships hash for a resource to be an object, found '${value}' for type '${type}'`;
