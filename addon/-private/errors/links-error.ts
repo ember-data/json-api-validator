@@ -15,6 +15,8 @@ export const LINKS_ERROR_TYPES = {
   INVALID_MEMBER: uniqueErrorId(),
   VALUE_MUST_BE_OBJECT: uniqueErrorId(),
   OBJECT_MUST_NOT_BE_EMPTY: uniqueErrorId(),
+  INVALID_SELF: uniqueErrorId(),
+  INVALID_RELATED: uniqueErrorId(),
 };
 
 export interface ILinksErrorOptions {
@@ -54,7 +56,13 @@ function buildMetaErrorMessage(options: ILinksErrorOptions) {
 
     case LINKS_ERROR_TYPES.OBJECT_MUST_NOT_BE_EMPTY:
       return `'${path}.${member}' MUST have at least one member: found an empty object.`;
+
+    case LINKS_ERROR_TYPES.INVALID_SELF:
+      return `'${path}.${member}' MUST contain self as string URLs or an object`;
+    case LINKS_ERROR_TYPES.INVALID_RELATED:
+      return `'${path}.${member}' MUST contain related as string URLs or an object`;
   }
+
 
   return 'DocumentError';
 }
