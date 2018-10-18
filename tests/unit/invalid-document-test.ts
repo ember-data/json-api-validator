@@ -726,7 +726,7 @@ module('Unit | Document', function(hooks: ModuleContext) {
         let fakeDoc = { data: { type: 'animal', id: '1', attributes: {} } };
         let linksPagination1 = buildDoc(fakeDoc, { links: { first: null, prev: null, next: null, last: null} });
         let linksPagination2 = buildDoc(fakeDoc, { links: { first: 'http://example.com/articles?page[number]=1&page[size]=1' , prev: null, next: 'http://example.com/articles?page[number]=4&page[size]=1', last: null} });
-        let linksPagination3 = buildDoc(fakeDoc, { links: { first: 'http://example.com/articles?page[number]=1&page[size]=1' , prev: null, next: '[http://example.com/articles?page[number]=4&page[size]=1]', last: null} });
+        let linksPagination3 = buildDoc(fakeDoc, { links: { first: 'http://example.com/articles?page[number]=1&page[size]=1' , prev: null, next: ['http://example.com/articles?page[number]=4&page[size]=1'], last: null} });
         let linksPagination4 = buildDoc(fakeDoc, { links: { first: 'http://example.com/articles?page[number]=1&page[size]=1' , prev: 'http://example.com/articles?page[number]=2&page[size]=1', last: 'http://example.com/articles?page[number]=13&page[size]=1'} });
         let linksPagination5 = buildDoc(fakeDoc, { links: { first: 'http://example.com/articles?page[number]=1&page[size]=1' , prev: 'http://example.com/articles?page[number]=2&page[size]=1', next: 'http://example.com/articles?page[number]=4&page[size]=1', last: 'http://example.com/articles?page[number]=13&page[size]=1'} });
 

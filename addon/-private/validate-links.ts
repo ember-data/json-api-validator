@@ -75,6 +75,33 @@ export default function validateLinks({ document, validator, target, issues, pat
 
         return false;
       }
+    } else if (target.links.first || target.links.next || target.links.prev || target.links.last) {
+      const pagination = [
+        target.links.first,
+        target.links.next,
+        target.links.prev,
+        target.links.last,
+      ];
+
+      pagination.forEach((link) => {
+        if (link) {
+          if (typeof link !== 'string' && !isPlainObject(link)) {
+            triggerError(LINKS_ERROR_TYPES.INVALID_PAGINATION);
+
+            return false;
+          }
+
+          return true;
+        } else {
+          if (link === null) {
+            return true;
+          } else {
+            triggerError(LINKS_ERROR_TYPES.INVALID_PAGINATION);
+
+            return false;
+          }
+        }
+      });
     }
   }
   return true;
