@@ -606,31 +606,194 @@ module('Unit | Document', function(hooks: ModuleContext) {
       );
     });
 
-    todo(
+    test(
       'links MAY contain `self`, `related` and the pagination links `first`, `last`, `prev` and `next`',
       function(assert) {
-        assert.notOk('Not Implemented');
+        let fakeDoc = { data: { type: 'animal', id: '1', attributes: {} } };
+        let linksSelf = buildDoc(fakeDoc, { links: { self: 'https://api.example.com/foos/1' } });
+        let linksRelated = buildDoc(fakeDoc, { links: { related: 'https://api.example.com/foos/1/bars' } });
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksSelf);
+          },
+          `'<document>.links' MAY contain self`,
+          'we do not throw for self in links'
+        );
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksRelated);
+          },
+          `'<document>.links' MAY contain related`,
+          'we do not throw for related in links'
+        );
       }
     );
 
-    todo(
+    test(
       'included `self` and `related` links MUST either be string URLs or an object with members `href` (a string URL) and an optional `meta` object',
       function(assert) {
-        assert.notOk('Not Implemented');
+        let fakeDoc = { data: { type: 'animal', id: '1', attributes: {} } };
+        let linksSelf1 = buildDoc(fakeDoc, { links: { self: ['https://api.example.com/foos/1/bars'] } });
+        let linksSelf2 = buildDoc(fakeDoc, { links: { self: 'https://api.example.com/foos/1/bars' } });
+        let linksSelf3 = buildDoc(fakeDoc, { links: { self: { href: 'https://api.example.com/foos/1/bars' } } });
+        let linksSelf4 = buildDoc(fakeDoc, { links: { self: { href: ['https://api.example.com/foos/1/bars'] } } });
+        let linksSelf5 = buildDoc(fakeDoc, { links: { self: { href: 'https://api.example.com/foos/1/bars', meta: { count: 10 } } } });
+
+        let linksRelated1 = buildDoc(fakeDoc, { links: { related: 'https://api.example.com/foos/1/bars' } });
+        let linksRelated2 = buildDoc(fakeDoc, { links: { related: ['https://api.example.com/foos/1/bars'] } });
+        let linksRelated3 = buildDoc(fakeDoc, { links: { related: { href: 'https://api.example.com/foos/1/bars' } } });
+        let linksRelated4 = buildDoc(fakeDoc, { links: { related: { href: 'https://api.example.com/foos/1/bars', meta: { count: 10 } } } });
+
+        assert.throwsWith(
+          () => {
+            push(linksSelf1);
+          },
+          `'<document>.links' MUST contain self as string URLs or an object`,
+          'we throw for self as array'
+        );
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksSelf2);
+          },
+          `'<document>.links' MUST contain self as string URLs or an object`,
+          'we do not throw for self as string URL'
+        );
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksSelf3);
+          },
+          `'<document>.links' MUST contain self as string URLs or an object`,
+          'we do not throw for self as object with href but not meta'
+        );
+
+        assert.throwsWith(
+          () => {
+            push(linksSelf4);
+          },
+          `'<document>.links' MUST contain self as string URLs or an object`,
+          'we do throw for self as object with href as array'
+        );
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksSelf5);
+          },
+          `'<document>.links' MUST contain self as string URLs or an object`,
+          'we do not throw for self as object with href AND with meta object'
+        );
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksRelated1);
+          },
+          `'<document>.links' MUST contain related as string URLs or an object`,
+          'we do not throw for related as string URL'
+        );
+
+        assert.throwsWith(
+          () => {
+            push(linksRelated2);
+          },
+          `'<document>.links' MUST contain related as string URLs or an object`,
+          'we do throw for related as array'
+        );
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksRelated3);
+          },
+          `'<document>.links' MUST contain related as string URLs or an object`,
+          'we do not throw for related as object but no meta'
+        );
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksRelated4);
+          },
+          `'<document>.links' MUST contain related as string URLs or an object`,
+          'we do not throw for related as object AND with meta object'
+        );
       }
     );
 
-    todo(
+    test(
       'included pagination links MUST either be null, string URLs or an object with members `href` (a string URL) and an optional `meta` object',
       function(assert) {
-        assert.notOk('Not Implemented');
+        let fakeDoc = { data: { type: 'animal', id: '1', attributes: {} } };
+        let linksPagination1 = buildDoc(fakeDoc, { links: { first: null, prev: null, next: null, last: null} });
+        let linksPagination2 = buildDoc(fakeDoc, { links: { first: 'http://example.com/articles?page[number]=1&page[size]=1' , prev: null, next: 'http://example.com/articles?page[number]=4&page[size]=1', last: null} });
+        let linksPagination3 = buildDoc(fakeDoc, { links: { first: 'http://example.com/articles?page[number]=1&page[size]=1' , prev: null, next: ['http://example.com/articles?page[number]=4&page[size]=1'], last: null} });
+        let linksPagination4 = buildDoc(fakeDoc, { links: { first: 'http://example.com/articles?page[number]=1&page[size]=1' , prev: 'http://example.com/articles?page[number]=2&page[size]=1', last: 'http://example.com/articles?page[number]=13&page[size]=1'} });
+        let linksPagination5 = buildDoc(fakeDoc, { links: { first: 'http://example.com/articles?page[number]=1&page[size]=1' , prev: 'http://example.com/articles?page[number]=2&page[size]=1', next: 'http://example.com/articles?page[number]=4&page[size]=1', last: 'http://example.com/articles?page[number]=13&page[size]=1'} });
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksPagination1);
+          },
+          `'<document>.links' included pagination MUST be null, string URL or an object`,
+          'we do not throw for pagination links as null'
+        );
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksPagination2);
+          },
+          `'<document>.links' included pagination MUST be null, string URL or an object`,
+          'we do not throw for some pagination links as null'
+        );
+
+        assert.throwsWith(
+          () => {
+            push(linksPagination3);
+          },
+          `'<document>.links' included pagination MUST be null, string URL or an object`,
+          'we do throw for some pagination links as array'
+        );
+
+        assert.throwsWith(
+          () => {
+            push(linksPagination4);
+          },
+          `'<document>.links' included pagination MUST be null, string URL or an object`,
+          'we do throw for missing pagination links'
+        );
+
+        assert.doesNotThrowWith(
+          () => {
+            push(linksPagination5);
+          },
+          `'<document>.links' included pagination MUST be null, string URL or an object`,
+          'we do not throw for pagination links with string URLs'
+        );
       }
     );
 
-    todo('(strict-mode) links MAY NOT contain any non-spec members', function(
+    test('(strict-mode) links MAY NOT contain any non-spec members', function(
       assert
     ) {
-      assert.notOk('Not Implemented');
+      let fakeDoc = { data: { type: 'animal', id: '1', attributes: {} } };
+      let links1 = buildDoc(fakeDoc, { links: { first: null, prev: null, next: null, last: null, custom: 'http://example.com/articles?page[number]=1&page[size]=1'} });
+      let links2 = buildDoc(fakeDoc, { links: { self_admin: 'http://example.com/articles?page[number]=1&page[size]=1', self: 'http://example.com/articles?page[number]=1&page[size]=1'} });
+
+      assert.throwsWith(
+        () => {
+          push(links1);
+        },
+        `'<document>.links' MAY NOT contain any non-spec members`,
+        'we do throw for non-spec member'
+      );
+
+      assert.throwsWith(
+        () => {
+          push(links2);
+        },
+        `'<document>.links' MAY NOT contain any non-spec members`,
+        'we do throw for non-spec member'
+      );
     });
 
     todo('a document MUST ', function(assert) {
